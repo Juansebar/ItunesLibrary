@@ -1,5 +1,5 @@
 //
-//  ViewController.swift
+//  ItunesLibraryFeedViewController.swift
 //  ItunesLibrary
 //
 //  Created by Juan Ramirez on 10/7/20.
@@ -8,7 +8,7 @@
 
 import UIKit
 
-class ViewController: UIViewController {
+class ItunesLibraryFeedViewController: UIViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
