@@ -14,7 +14,7 @@ protocol MusicDetailViewModelContract {
     var collectionName: NSAttributedString? { get }
     var trackName: String { get }
 //    var preview: Box<AVAudioPlayer?> { get }
-    var previewUrl: URL { get }
+//    var previewUrl: URL { get }
     var artwork: Box<UIImage?> { get }
     var collectionPrice: NSAttributedString? { get }
     var trackPrice: NSAttributedString? { get }
@@ -22,6 +22,8 @@ protocol MusicDetailViewModelContract {
     var releaseDate: NSAttributedString? { get }
     var trackTimeMillis: Int { get }
     var genre: NSAttributedString? { get }
+    
+    func setSongPreviewDidDownloadClosure(callback: @escaping (AVAudioPlayer) -> Void)
 }
 
 class MusicDetailViewModel: MusicDetailViewModelContract {
@@ -29,10 +31,10 @@ class MusicDetailViewModel: MusicDetailViewModelContract {
     
     var artistName: String { return song.artistName }
     var trackName: String { return song.trackName }
-//    let preview: Box<AVAudioPlayer?> = Box(nil)
-    var previewUrl: URL {
-        return URL(string: song.previewUrl)!
-    }
+    let preview: Box<AVAudioPlayer?> = Box(nil)
+//    var previewUrl: URL {
+//        return URL(string: song.previewUrl)!
+//    }
     
     
     var currency: String { return song.currency }
@@ -66,6 +68,13 @@ class MusicDetailViewModel: MusicDetailViewModelContract {
         fetchPreview()
     }
     
+    private var songPreviewDidDownload: ((AVAudioPlayer) -> Void)?
+    
+    func setSongPreviewDidDownloadClosure(callback: @escaping (AVAudioPlayer) -> Void) {
+        songPreviewDidDownload = callback
+        fetchPreview()
+    }
+    
     private func fetchArtwork() {
         let artworkUrl = song.artworkUrl100
         
@@ -81,12 +90,25 @@ class MusicDetailViewModel: MusicDetailViewModelContract {
         }
     }
     
+    private var audioPlayer: AVAudioPlayer? {
+        didSet {
+            guard let player = audioPlayer else { return }
+            songPreviewDidDownload?(player)
+        }
+    }
+    
     private func fetchPreview() {
-        let previewUrl = URL(string: song.previewUrl)!
-        
-        do {
-            
-        } 
+        DispatchQueue.global(qos: .userInteractive).async {
+            let previewUrl = URL(string: self.song.previewUrl)!
+            do {
+                let player = try AVAudioPlayer(data: Data(contentsOf: previewUrl))
+                DispatchQueue.main.async {
+                    self.audioPlayer = player
+                }
+            } catch {
+                print(error.localizedDescription)
+            }
+        }
     }
     
     private let dateFormatter = DateFormatter()

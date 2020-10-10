@@ -178,11 +178,23 @@ class MusicDetailViewController: UIViewController {
         
         setupViews()
         setupConstraints()
-        disallow()
-        setupPlayer()
+        
+//        setupPlayer()
         
         viewModel.artwork.bind { [weak self] (image) in
             self?.artworkImageView.image = image
+        }
+        
+        disallow()
+        playerState = .neutral
+        viewModel.setSongPreviewDidDownloadClosure { [weak self] (player) in
+            self?.audioPlayer = player
+            self?.audioPlayer?.numberOfLoops = 0
+            self?.audioPlayer?.delegate = self
+            self?.audioPlayer?.prepareToPlay()
+            
+            guard let end = self?.audioPlayer?.duration else { return }
+            self?.allow()
         }
         
         songNameLabel.text = viewModel.trackName
@@ -198,21 +210,21 @@ class MusicDetailViewController: UIViewController {
         audioPlayer?.stop()
     }
     
-    private func setupPlayer() {
-        playerState = .neutral
-        do {
-            audioPlayer = try AVAudioPlayer(data: Data(contentsOf: viewModel.previewUrl))
-            audioPlayer?.numberOfLoops = 0
-            audioPlayer?.delegate = self
-            audioPlayer?.prepareToPlay()
-            
-            guard let end = audioPlayer?.duration else { return }
-            allow()
-        } catch {
-            // Show some alert
-            print(error.localizedDescription)
-        }
-    }
+//    private func setupPlayer() {
+//        disallow()
+//        do {
+//            audioPlayer = try AVAudioPlayer(data: Data(contentsOf: viewModel.previewUrl))
+//            audioPlayer?.numberOfLoops = 0
+//            audioPlayer?.delegate = self
+//            audioPlayer?.prepareToPlay()
+//
+//            guard let end = audioPlayer?.duration else { return }
+//            allow()
+//        } catch {
+//            // Show some alert
+//            print(error.localizedDescription)
+//        }
+//    }
     
     func setupViews() {
         view.addSubview(cardView)
