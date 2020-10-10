@@ -1,5 +1,5 @@
 //
-//  ItunesLibraryFeedViewController.swift
+//  MusicFeedViewController.swift
 //  ItunesLibrary
 //
 //  Created by Juan Ramirez on 10/7/20.
@@ -8,13 +8,37 @@
 
 import UIKit
 
-class ItunesLibraryFeedViewController: UIViewController {
-
+class MusicFeedViewController: UIViewController {
+    
+    private var songs: [Song] = []
+    
     override func viewDidLoad() {
         super.viewDidLoad()
-        // Do any additional setup after loading the view.
+
+        WebProvider.fetchItunesMusic { (result) in
+            switch result {
+            case .success(let songs):
+                self.songs = songs
+                self.updateTableView()
+            case .failure(let error):
+                print(error.localizedDescription)
+            }
+        }
+    }
+    
+    
+    private func updateTableView() {
+        print("Reloading data")
     }
 
+    /*
+    // MARK: - Navigation
+
+    // In a storyboard-based application, you will often want to do a little preparation before navigation
+    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+        // Get the new view controller using segue.destination.
+        // Pass the selected object to the new view controller.
+    }
+    */
 
 }
-

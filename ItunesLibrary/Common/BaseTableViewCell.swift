@@ -24,11 +24,10 @@ class BaseTableViewCell: UITableViewCell {
     }
     
     func setupViews() {
-        print("parent cell SetupViews")
+        selectionStyle = .none
     }
     
     func setupConstraints() {
-        print("parent cell SetupConstraints")
     }
     
 }

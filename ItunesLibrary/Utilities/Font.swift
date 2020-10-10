@@ -9,12 +9,16 @@
 import UIKit
 
 enum Fonts {
-    case boldTitle
+    case largeBoldTitle
+    case mediumBoldTitle
+    case largeText
     case text
     
     var font: UIFont {
         switch self {
-        case .boldTitle: return UIFont.boldSystemFont(ofSize: 17)
+        case .largeBoldTitle: return UIFont.boldSystemFont(ofSize: 24)
+        case .mediumBoldTitle: return UIFont.boldSystemFont(ofSize: 17)
+        case .largeText: return UIFont.systemFont(ofSize: 20)
         case .text: return UIFont.systemFont(ofSize: 16)
         }
     }

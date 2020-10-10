@@ -12,6 +12,7 @@ protocol MusicFeedViewModelContract {
     var songs: [Song] { get set }
     
     func setSongsDidChange(callback: @escaping () -> Void) -> Void
+    func fetchMusic(with searchTerm: String)
 }
 
 class MusicFeedViewModel: MusicFeedViewModelContract {
@@ -25,15 +26,15 @@ class MusicFeedViewModel: MusicFeedViewModelContract {
     private var songsDidChange: (() -> Void)?
     
     init() {
-        fetchMusic()
+        fetchMusic(with: "Michael Jackson")
     }
     
     func setSongsDidChange(callback: @escaping () -> Void) {
         songsDidChange = callback
     }
     
-    private func fetchMusic() {
-        WebProvider.fetchItunesMusic { (result) in
+    func fetchMusic(with searchTerm: String) {
+        WebProvider.fetchItunesMusic(searchTerm: searchTerm) { (result) in
             switch result {
             case .success(let songs):
                 self.songs = songs
@@ -42,6 +43,10 @@ class MusicFeedViewModel: MusicFeedViewModelContract {
                 print(error.localizedDescription)
             }
         }
+    }
+    
+    private func fetchMusic() {
+        
     }
     
 }

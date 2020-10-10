@@ -12,7 +12,6 @@
 		2455FFA8252E59B90038F974 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 2455FFA7252E59B90038F974 /* Assets.xcassets */; };
 		2455FFAB252E59B90038F974 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 2455FFA9252E59B90038F974 /* LaunchScreen.storyboard */; };
 		2455FFB6252E59BA0038F974 /* ItunesLibraryTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2455FFB5252E59BA0038F974 /* ItunesLibraryTests.swift */; };
-		2455FFC1252E5C340038F974 /* MusicFeedViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2455FFC0252E5C340038F974 /* MusicFeedViewController.swift */; };
 		2455FFC4252E5E180038F974 /* WebProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2455FFC3252E5E180038F974 /* WebProvider.swift */; };
 		2455FFC7252E5F450038F974 /* Song.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2455FFC6252E5F450038F974 /* Song.swift */; };
 		2455FFCB252F89250038F974 /* Box.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2455FFCA252F89250038F974 /* Box.swift */; };
@@ -21,6 +20,14 @@
 		2455FFD3252F91AA0038F974 /* BaseTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2455FFD2252F91AA0038F974 /* BaseTableViewCell.swift */; };
 		2455FFD5252F94850038F974 /* Font.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2455FFD4252F94850038F974 /* Font.swift */; };
 		2455FFD7252FB54E0038F974 /* Colors.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2455FFD6252FB54E0038F974 /* Colors.swift */; };
+		2455FFD9252FBBCC0038F974 /* MusicFeedViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2455FFD8252FBBCC0038F974 /* MusicFeedViewController.swift */; };
+		2468C087252FC24200F4F685 /* BaseViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2468C086252FC24200F4F685 /* BaseViewController.swift */; };
+		2468C08A252FC6A500F4F685 /* UIImageView+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2468C089252FC6A500F4F685 /* UIImageView+Extensions.swift */; };
+		2468C08C252FC6D700F4F685 /* ImageCache.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2468C08B252FC6D700F4F685 /* ImageCache.swift */; };
+		2468C08F2530B82700F4F685 /* MusicDetailViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2468C08E2530B82700F4F685 /* MusicDetailViewController.swift */; };
+		2468C0912530B83500F4F685 /* MusicDetailViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2468C0902530B83500F4F685 /* MusicDetailViewModel.swift */; };
+		2468C0932530DC3D00F4F685 /* CardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2468C0922530DC3D00F4F685 /* CardView.swift */; };
+		2468C0952532321700F4F685 /* Currency.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2468C0942532321700F4F685 /* Currency.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -43,7 +50,6 @@
 		2455FFB1252E59B90038F974 /* ItunesLibraryTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ItunesLibraryTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		2455FFB5252E59BA0038F974 /* ItunesLibraryTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ItunesLibraryTests.swift; sourceTree = "<group>"; };
 		2455FFB7252E59BA0038F974 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		2455FFC0252E5C340038F974 /* MusicFeedViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MusicFeedViewController.swift; sourceTree = "<group>"; };
 		2455FFC3252E5E180038F974 /* WebProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WebProvider.swift; sourceTree = "<group>"; };
 		2455FFC6252E5F450038F974 /* Song.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Song.swift; sourceTree = "<group>"; };
 		2455FFCA252F89250038F974 /* Box.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Box.swift; sourceTree = "<group>"; };
@@ -52,6 +58,14 @@
 		2455FFD2252F91AA0038F974 /* BaseTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BaseTableViewCell.swift; sourceTree = "<group>"; };
 		2455FFD4252F94850038F974 /* Font.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Font.swift; sourceTree = "<group>"; };
 		2455FFD6252FB54E0038F974 /* Colors.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Colors.swift; sourceTree = "<group>"; };
+		2455FFD8252FBBCC0038F974 /* MusicFeedViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MusicFeedViewController.swift; sourceTree = "<group>"; };
+		2468C086252FC24200F4F685 /* BaseViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BaseViewController.swift; sourceTree = "<group>"; };
+		2468C089252FC6A500F4F685 /* UIImageView+Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIImageView+Extensions.swift"; sourceTree = "<group>"; };
+		2468C08B252FC6D700F4F685 /* ImageCache.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageCache.swift; sourceTree = "<group>"; };
+		2468C08E2530B82700F4F685 /* MusicDetailViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MusicDetailViewController.swift; sourceTree = "<group>"; };
+		2468C0902530B83500F4F685 /* MusicDetailViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MusicDetailViewModel.swift; sourceTree = "<group>"; };
+		2468C0922530DC3D00F4F685 /* CardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardView.swift; sourceTree = "<group>"; };
+		2468C0942532321700F4F685 /* Currency.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Currency.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -93,10 +107,11 @@
 		2455FF9D252E59B40038F974 /* ItunesLibrary */ = {
 			isa = PBXGroup;
 			children = (
+				2468C088252FC67E00F4F685 /* Extensions */,
 				2455FFD1252F91880038F974 /* Common */,
-				2455FFCC252F89F90038F974 /* ViewModel */,
 				2455FFC9252F89110038F974 /* Utilities */,
 				2455FFC8252F86CD0038F974 /* MusicFeed */,
+				2468C08D2530B80100F4F685 /* MusicDetail */,
 				2455FFC5252E5E8A0038F974 /* Model */,
 				2455FFC2252E5DC00038F974 /* WebProvider */,
 				2455FF9E252E59B40038F974 /* AppDelegate.swift */,
@@ -136,8 +151,9 @@
 		2455FFC8252F86CD0038F974 /* MusicFeed */ = {
 			isa = PBXGroup;
 			children = (
-				2455FFC0252E5C340038F974 /* MusicFeedViewController.swift */,
 				2455FFCF252F8FB50038F974 /* MusicFeedCell.swift */,
+				2455FFCD252F8A200038F974 /* MusicFeedViewModel.swift */,
+				2455FFD8252FBBCC0038F974 /* MusicFeedViewController.swift */,
 			);
 			path = MusicFeed;
 			sourceTree = "<group>";
@@ -148,24 +164,37 @@
 				2455FFCA252F89250038F974 /* Box.swift */,
 				2455FFD4252F94850038F974 /* Font.swift */,
 				2455FFD6252FB54E0038F974 /* Colors.swift */,
+				2468C08B252FC6D700F4F685 /* ImageCache.swift */,
+				2468C0942532321700F4F685 /* Currency.swift */,
 			);
 			path = Utilities;
-			sourceTree = "<group>";
-		};
-		2455FFCC252F89F90038F974 /* ViewModel */ = {
-			isa = PBXGroup;
-			children = (
-				2455FFCD252F8A200038F974 /* MusicFeedViewModel.swift */,
-			);
-			path = ViewModel;
 			sourceTree = "<group>";
 		};
 		2455FFD1252F91880038F974 /* Common */ = {
 			isa = PBXGroup;
 			children = (
 				2455FFD2252F91AA0038F974 /* BaseTableViewCell.swift */,
+				2468C086252FC24200F4F685 /* BaseViewController.swift */,
+				2468C0922530DC3D00F4F685 /* CardView.swift */,
 			);
 			path = Common;
+			sourceTree = "<group>";
+		};
+		2468C088252FC67E00F4F685 /* Extensions */ = {
+			isa = PBXGroup;
+			children = (
+				2468C089252FC6A500F4F685 /* UIImageView+Extensions.swift */,
+			);
+			path = Extensions;
+			sourceTree = "<group>";
+		};
+		2468C08D2530B80100F4F685 /* MusicDetail */ = {
+			isa = PBXGroup;
+			children = (
+				2468C08E2530B82700F4F685 /* MusicDetailViewController.swift */,
+				2468C0902530B83500F4F685 /* MusicDetailViewModel.swift */,
+			);
+			path = MusicDetail;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -268,17 +297,24 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				2468C0952532321700F4F685 /* Currency.swift in Sources */,
+				2468C08A252FC6A500F4F685 /* UIImageView+Extensions.swift in Sources */,
 				2455FF9F252E59B40038F974 /* AppDelegate.swift in Sources */,
 				2455FFD7252FB54E0038F974 /* Colors.swift in Sources */,
 				2455FFC4252E5E180038F974 /* WebProvider.swift in Sources */,
 				2455FFD5252F94850038F974 /* Font.swift in Sources */,
+				2468C0912530B83500F4F685 /* MusicDetailViewModel.swift in Sources */,
 				2455FFA1252E59B40038F974 /* SceneDelegate.swift in Sources */,
+				2468C087252FC24200F4F685 /* BaseViewController.swift in Sources */,
 				2455FFD0252F8FB50038F974 /* MusicFeedCell.swift in Sources */,
 				2455FFD3252F91AA0038F974 /* BaseTableViewCell.swift in Sources */,
+				2468C08F2530B82700F4F685 /* MusicDetailViewController.swift in Sources */,
 				2455FFCE252F8A200038F974 /* MusicFeedViewModel.swift in Sources */,
 				2455FFCB252F89250038F974 /* Box.swift in Sources */,
-				2455FFC1252E5C340038F974 /* MusicFeedViewController.swift in Sources */,
 				2455FFC7252E5F450038F974 /* Song.swift in Sources */,
+				2468C08C252FC6D700F4F685 /* ImageCache.swift in Sources */,
+				2468C0932530DC3D00F4F685 /* CardView.swift in Sources */,
+				2455FFD9252FBBCC0038F974 /* MusicFeedViewController.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
