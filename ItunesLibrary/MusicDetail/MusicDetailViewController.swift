@@ -7,10 +7,64 @@
 //
 
 import UIKit
+import AVFoundation
 
 class MusicDetailViewController: UIViewController {
-
+    
     private let viewModel: MusicDetailViewModelContract
+    
+    private var audioPlayer: AVAudioPlayer?
+    
+    private enum PlayerState {
+        case neutral
+        case playing
+        case paused
+        case ended
+    }
+    
+    private enum PlayerFunction {
+        case play
+        case stop
+        case timer
+        case drag
+    }
+    
+    private var playerState: PlayerState = .neutral {
+        didSet {
+            //            if Common.showStatus {
+            //                status.text = "." + String(describing: playerState)
+            //            }
+        }
+    }
+    
+    private lazy var playButton: UIButton = {
+        let button = UIButton(type: .system)
+        button.setImage(UIImage(named: "play")?.withRenderingMode(.alwaysOriginal), for: .normal)
+        button.imageView?.contentMode = .scaleAspectFill
+        button.addTarget(self, action: #selector(playEvent), for: .touchUpInside)
+        button.translatesAutoresizingMaskIntoConstraints = false
+        return button
+    }()
+    
+    private lazy var stopButton: UIButton = {
+        let button = UIButton(type: .system)
+        button.setImage(UIImage(named: "pause")?.withRenderingMode(.alwaysOriginal), for: .normal)
+        button.imageView?.contentMode = .scaleAspectFill
+        button.addTarget(self, action: #selector(stopEvent), for: .touchUpInside)
+        button.translatesAutoresizingMaskIntoConstraints = false
+        return button
+    }()
+    
+    private let progress: UISlider = {
+        let slider = UISlider()
+        slider.minimumValue = 0
+        slider.maximumValue = 1
+        slider.isContinuous = true
+        slider.tintColor = UIColor.cyan //Colors.karyn.color
+        slider.thumbTintColor = Colors.lightGray.color
+        slider.addTarget(self, action: #selector(progressDidChange), for: .valueChanged)
+        return slider
+    }()
     
     
     private let artworkImageView: UIImageView = {
@@ -119,30 +173,54 @@ class MusicDetailViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-
+        
         view.backgroundColor = Colors.white.color
         
         setupViews()
         setupConstraints()
+        disallow()
+        setupPlayer()
         
         viewModel.artwork.bind { [weak self] (image) in
             self?.artworkImageView.image = image
         }
         
+        songNameLabel.text = viewModel.trackName
+        artistNameLabel.text = viewModel.artistName
         albumNameLabel.attributedText = viewModel.collectionName
         releaseDateLabel.attributedText = viewModel.releaseDate
         genreLabel.attributedText = viewModel.genre
         priceLabel.attributedText = viewModel.trackPrice
     }
     
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        audioPlayer?.stop()
+    }
+    
+    private func setupPlayer() {
+        playerState = .neutral
+        do {
+            audioPlayer = try AVAudioPlayer(data: Data(contentsOf: viewModel.previewUrl))
+            audioPlayer?.numberOfLoops = 0
+            audioPlayer?.delegate = self
+            audioPlayer?.prepareToPlay()
+            
+            guard let end = audioPlayer?.duration else { return }
+            allow()
+        } catch {
+            // Show some alert
+            print(error.localizedDescription)
+        }
+    }
+    
     func setupViews() {
         view.addSubview(cardView)
         view.addSubview(trackLabelsStackView)
+        view.addSubview(playButton)
+        view.addSubview(progress)
         
         infoView.addSubview(additionInfoStackView)
-        
-        songNameLabel.text = viewModel.trackName
-        artistNameLabel.text = viewModel.artistName
     }
     
     func setupConstraints() {
@@ -164,6 +242,133 @@ class MusicDetailViewController: UIViewController {
             additionInfoStackView.topAnchor.constraint(equalTo: infoView.topAnchor, constant: 10),
             additionInfoStackView.rightAnchor.constraint(equalTo: infoView.rightAnchor, constant: -10)
         ])
+        
+        NSLayoutConstraint.activate([
+            playButton.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -20),
+            playButton.centerXAnchor.constraint(equalTo: view.centerXAnchor, constant: 0),
+            playButton.heightAnchor.constraint(equalToConstant: 80),
+            playButton.widthAnchor.constraint(equalToConstant: 80)
+        ])
+        
+//        NSLayoutConstraint.activate([
+//            progress.leftAnchor.constraint(equalTo: additionInfoStackView.leftAnchor),
+//            progress.rightAnchor.constraint(equalTo: additionInfoStackView.rightAnchor),
+//            progress.bottomAnchor.constraint(equalTo: playButton.topAnchor, constant: -10)
+//        ])
     }
+    
+    // MARK: - Local routines
+    
+    @objc private func timerFired() { timerEvent() }
+    
+    @objc private func progressDidChange() { dragEvent() }
+    
+    @objc private func playEvent() {
+        playButton.isEnabled = false
+        stopButton.isEnabled = false
+        switch playerState {
+        case .neutral:
+            audioPlayer!.currentTime = 0.00
+            play()
+            playerState = .playing
+            playButton.isEnabled = true
+            stopButton.isEnabled = true
+        case .playing:
+//            timer.invalidate()
+            audioPlayer?.pause()
+            playButton.setImage(UIImage(named: "play"), for: .normal)
+            playButton.isEnabled = true
+            stopButton.isEnabled = true
+            playerState = .paused
+        case .paused:
+            play()
+            playButton.isEnabled = true
+            stopButton.isEnabled = true
+            playerState = .playing
+        case .ended: break
+        }
+    }
+    
+    private func play() {
+        audioPlayer!.play()
+//        timer.add(to: RunLoop.current, forMode: RunLoop.Mode.common)
+        playButton.setImage(UIImage(named: "pause"), for: .normal)
+    }
+    
+    @objc private func stopEvent() {
+        playButton.isEnabled = false
+        stopButton.isEnabled = false
+        switch playerState {
+        case .neutral, .ended: break
+        case .playing, .paused:
+//            timer.invalidate()
+            progress.value = Float(0.00)
+//            start.set(0.00)
+            audioPlayer!.stop()
+            playButton.setImage(UIImage(named: "play"), for: .normal)
+            playButton.isEnabled = true
+            playerState = .neutral
+        }
+    }
+    
+    private func timerEvent() {
+        progress.value = Float(audioPlayer!.currentTime / audioPlayer!.duration)
+//        start.set(audioPlayer!.currentTime)
+//        duration.set(audioPlayer!.duration - audioPlayer!.currentTime)
+    }
+    
+    private func dragEvent() {
+        playButton.isEnabled = false
+        stopButton.isEnabled = false
+        switch playerState {
+        case .neutral, .paused, .playing:
+//            timer.isPaused = true
+            audioPlayer!.currentTime = audioPlayer!.duration * Double(progress.value)
+//            start.set(player!.currentTime)
+//            timer.isPaused = false
+            playButton.isEnabled = true
+            stopButton.isEnabled = true
+            playerState = .paused
+        case .ended: break
+        }
+    }
+    
+}
 
+// MARK: - XongViewType
+
+extension MusicDetailViewController {
+    
+    private func disallow() {
+//        spinner.isHidden = false
+//        spinner.startAnimating()
+        progress.isEnabled = false
+        progress.isUserInteractionEnabled = false
+        playButton.isEnabled = false
+        playButton.isUserInteractionEnabled = false
+        stopButton.isEnabled = false
+        stopButton.isUserInteractionEnabled = false
+    }
+    
+    private func allow() {
+//        spinner.stopAnimating()
+//        spinner.isHidden = true
+        progress.isEnabled = true
+        progress.isUserInteractionEnabled = true
+        playButton.isEnabled = true
+        playButton.isUserInteractionEnabled = true
+        stopButton.isEnabled = true
+        stopButton.isUserInteractionEnabled = true
+    }
+    
+}
+
+extension MusicDetailViewController: AVAudioPlayerDelegate {
+    
+    func audioPlayerDidFinishPlaying(_ player: AVAudioPlayer, successfully flag: Bool) {
+        if playerState == .playing {
+            playerState = .ended
+        }
+    }
+    
 }

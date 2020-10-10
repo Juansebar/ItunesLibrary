@@ -7,12 +7,14 @@
 //
 
 import UIKit
+import AVFoundation
 
 protocol MusicDetailViewModelContract {
     var artistName: String { get }
     var collectionName: NSAttributedString? { get }
     var trackName: String { get }
-    var previewUrl: String { get }
+//    var preview: Box<AVAudioPlayer?> { get }
+    var previewUrl: URL { get }
     var artwork: Box<UIImage?> { get }
     var collectionPrice: NSAttributedString? { get }
     var trackPrice: NSAttributedString? { get }
@@ -27,7 +29,10 @@ class MusicDetailViewModel: MusicDetailViewModelContract {
     
     var artistName: String { return song.artistName }
     var trackName: String { return song.trackName }
-    var previewUrl: String { return song.previewUrl }
+//    let preview: Box<AVAudioPlayer?> = Box(nil)
+    var previewUrl: URL {
+        return URL(string: song.previewUrl)!
+    }
     
     
     var currency: String { return song.currency }
@@ -58,6 +63,7 @@ class MusicDetailViewModel: MusicDetailViewModelContract {
         self.song = song
         
         fetchArtwork()
+        fetchPreview()
     }
     
     private func fetchArtwork() {
@@ -73,6 +79,14 @@ class MusicDetailViewModel: MusicDetailViewModelContract {
                 print(error.localizedDescription)
             }
         }
+    }
+    
+    private func fetchPreview() {
+        let previewUrl = URL(string: song.previewUrl)!
+        
+        do {
+            
+        } 
     }
     
     private let dateFormatter = DateFormatter()
