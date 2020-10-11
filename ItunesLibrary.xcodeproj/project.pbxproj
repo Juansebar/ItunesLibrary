@@ -30,6 +30,7 @@
 		2468C0952532321700F4F685 /* Currency.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2468C0942532321700F4F685 /* Currency.swift */; };
 		2468C09725328EEB00F4F685 /* Date+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2468C09625328EEB00F4F685 /* Date+Extensions.swift */; };
 		2468C09B253397E400F4F685 /* CMTime+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2468C09A253397E400F4F685 /* CMTime+Extensions.swift */; };
+		2468C09D2533AF9100F4F685 /* PlayerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2468C09C2533AF9100F4F685 /* PlayerView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -70,6 +71,7 @@
 		2468C0942532321700F4F685 /* Currency.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Currency.swift; sourceTree = "<group>"; };
 		2468C09625328EEB00F4F685 /* Date+Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Date+Extensions.swift"; sourceTree = "<group>"; };
 		2468C09A253397E400F4F685 /* CMTime+Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "CMTime+Extensions.swift"; sourceTree = "<group>"; };
+		2468C09C2533AF9100F4F685 /* PlayerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlayerView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -180,6 +182,7 @@
 				2455FFD2252F91AA0038F974 /* BaseTableViewCell.swift */,
 				2468C086252FC24200F4F685 /* BaseViewController.swift */,
 				2468C0922530DC3D00F4F685 /* CardView.swift */,
+				2468C09C2533AF9100F4F685 /* PlayerView.swift */,
 			);
 			path = Common;
 			sourceTree = "<group>";
@@ -312,6 +315,7 @@
 				2468C0912530B83500F4F685 /* MusicDetailViewModel.swift in Sources */,
 				2455FFA1252E59B40038F974 /* SceneDelegate.swift in Sources */,
 				2468C09B253397E400F4F685 /* CMTime+Extensions.swift in Sources */,
+				2468C09D2533AF9100F4F685 /* PlayerView.swift in Sources */,
 				2468C087252FC24200F4F685 /* BaseViewController.swift in Sources */,
 				2468C09725328EEB00F4F685 /* Date+Extensions.swift in Sources */,
 				2455FFD0252F8FB50038F974 /* MusicFeedCell.swift in Sources */,

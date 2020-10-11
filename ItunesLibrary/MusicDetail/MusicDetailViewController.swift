@@ -27,59 +27,12 @@ class MusicDetailViewController: UIViewController {
         case ended
     }
     
-    private enum PlayerFunction {
-        case play
-        case stop
-        case timer
-        case drag
-    }
-    
-    private lazy var playPauseButton: UIButton = {
-        let button = UIButton(type: .system)
-        button.setImage(UIImage(named: "play"), for: .normal)
-        button.imageView?.contentMode = .scaleAspectFill
-        button.addTarget(self, action: #selector(playPauseEvent), for: .touchUpInside)
-        button.translatesAutoresizingMaskIntoConstraints = false
-        return button
-    }()
-
-    private lazy var stopButton: UIButton = {
-        let button = UIButton(type: .system)
-        button.setImage(UIImage(named: "pause")?.withRenderingMode(.alwaysOriginal), for: .normal)
-        button.imageView?.contentMode = .scaleAspectFill
-        button.addTarget(self, action: #selector(stopEvent), for: .touchUpInside)
-        button.translatesAutoresizingMaskIntoConstraints = false
-        return button
-    }()
-
-    private lazy var currentTimeSlider: UISlider = {
-        let slider = UISlider()
-        slider.minimumValue = 0
-        slider.maximumValue = 1
-        slider.isContinuous = true
-        slider.tintColor = UIColor.systemRed //Colors.karyn.color
-        slider.thumbTintColor = Colors.white.color
-        slider.addTarget(self, action: #selector(progressDidChange), for: .valueChanged)
-        slider.translatesAutoresizingMaskIntoConstraints = false
-        return slider
-    }()
-    
-    private let currentTimeLabel: UILabel = {
-        let label = UILabel()
-        label.textColor = UIColor.lightGray
-        label.font = Fonts.text.font
-        label.text = "00:00"
-        label.translatesAutoresizingMaskIntoConstraints = false
-        return label
-    }()
-    
-    private let durationLabel: UILabel = {
-        let label = UILabel()
-        label.textColor = UIColor.lightGray
-        label.font = Fonts.text.font
-        label.text = "--:--"
-        label.translatesAutoresizingMaskIntoConstraints = false
-        return label
+    private lazy var playerView: PlayerView = {
+        let playerView = PlayerView()
+        playerView.delegate = self
+        playerView.isUserInteractionEnabled = true
+        playerView.translatesAutoresizingMaskIntoConstraints = false
+        return playerView
     }()
     
     private let artworkImageView: UIImageView = {
@@ -101,8 +54,6 @@ class MusicDetailViewController: UIViewController {
     
     private lazy var cardView: CardView = {
         let cardView = CardView(cardViews: (frontView: self.artworkImageView, backView: self.infoView))
-//        cardView.layer.cornerRadius = 5
-//        cardView.layer.masksToBounds = false
         cardView.layer.shadowColor = Colors.lightGray.color.cgColor
         cardView.layer.shadowRadius = 8
         cardView.layer.shadowOpacity = 0.8
@@ -193,7 +144,6 @@ class MusicDetailViewController: UIViewController {
         super.viewDidLoad()
         
         view.backgroundColor = Colors.white.color
-//        navigationController?.navigationBar.prefersLargeTitles = false
         
         setupViews()
         setupConstraints()
@@ -203,26 +153,26 @@ class MusicDetailViewController: UIViewController {
             self?.infoView.image = image
         }
         
-        disallow()
+        playerView.disallow()
         viewModel.setSongPreviewDidDownloadClosure { [weak self] in
-            self?.allow()
+            self?.playerView.allow()
         }
         
         viewModel.songProgress.bind { [weak self] (progress) in
-            self?.currentTimeSlider.value = progress
+            self?.playerView.currentTimeSlider.value = progress
         }
         
         viewModel.currentTime.bind { [weak self] (timeString) in
-            self?.currentTimeLabel.text = timeString
+            self?.playerView.currentTimeLabel.text = timeString
         }
         
         viewModel.duration.bind { [weak self] (timeString) in
-            self?.durationLabel.text = timeString
+            self?.playerView.durationLabel.text = timeString
         }
         
         viewModel.playerState.bind { [weak self] (state) in
             if state == .ended {
-                self?.setPlayButton(to: .play)
+                self?.playerView.setPlayPauseButton(to: .play)
                 self?.viewModel.playerState.value = .neutral
             }
         }
@@ -235,23 +185,15 @@ class MusicDetailViewController: UIViewController {
         priceLabel.attributedText = viewModel.trackPrice
     }
     
-    override func viewWillAppear(_ animated: Bool) {
-        super.viewWillAppear(animated)
-//        navigationController?.interactivePopGestureRecognizer?.isEnabled = false
-    }
-    
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
-        viewModel.stop()
+        viewModel.pause()
     }
     
     func setupViews() {
         view.addSubview(cardView)
         view.addSubview(trackLabelsStackView)
-        view.addSubview(playPauseButton)
-        view.addSubview(currentTimeSlider)
-        view.addSubview(currentTimeLabel)
-        view.addSubview(durationLabel)
+        view.addSubview(playerView)
         
         infoView.addSubview(additionInfoStackView)
     }
@@ -282,67 +224,15 @@ class MusicDetailViewController: UIViewController {
         ])
         
         NSLayoutConstraint.activate([
-            playPauseButton.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -20),
-            playPauseButton.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-            playPauseButton.heightAnchor.constraint(equalToConstant: 80),
-            playPauseButton.widthAnchor.constraint(equalToConstant: 80)
+            playerView.leftAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leftAnchor, constant: 25),
+            playerView.heightAnchor.constraint(equalTo: view.heightAnchor, multiplier: 1/4),
+            playerView.rightAnchor.constraint(equalTo: view.safeAreaLayoutGuide.rightAnchor, constant: -25),
+            playerView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -25),
+            
         ])
-        
-        NSLayoutConstraint.activate([
-            currentTimeSlider.leftAnchor.constraint(equalTo: view.leftAnchor, constant: 25),
-            currentTimeSlider.rightAnchor.constraint(equalTo: view.rightAnchor, constant: -25),
-            currentTimeSlider.bottomAnchor.constraint(equalTo: playPauseButton.topAnchor, constant: -10)
-        ])
-        
-        NSLayoutConstraint.activate([
-            currentTimeLabel.leftAnchor.constraint(equalTo: currentTimeSlider.leftAnchor),
-            currentTimeLabel.topAnchor.constraint(equalTo: currentTimeSlider.bottomAnchor, constant: 8)
-        ])
-        
-        NSLayoutConstraint.activate([
-            durationLabel.rightAnchor.constraint(equalTo: currentTimeSlider.rightAnchor),
-            durationLabel.topAnchor.constraint(equalTo: currentTimeSlider.bottomAnchor, constant: 8)
-        ])
-        
     }
     
     // MARK: - Local routines
-    
-    @objc private func progressDidChange() { dragEvent() }
-
-    @objc private func playPauseEvent() {
-        playPauseButton.isEnabled = false
-        stopButton.isEnabled = false
-
-        viewModel.playPause()
-        
-        switch viewModel.playerState.value {
-        case .neutral:
-            viewModel.playerState.value = .playing
-            viewModel.audioPlayerCurrentTime(0)
-//            viewModel.play()
-            animateCardView(to: .play)
-            setPlayButton(to: .pause)
-            playPauseButton.isEnabled = true
-            stopButton.isEnabled = true
-        case .playing:
-            viewModel.timer?.invalidate()
-//            viewModel.stop()
-            animateCardView(to: .pause)
-            setPlayButton(to: .play)
-            playPauseButton.isEnabled = true
-            stopButton.isEnabled = true
-            viewModel.playerState.value = .paused
-        case .paused:
-//            viewModel.play()
-            animateCardView(to: .play)
-            setPlayButton(to: .pause)
-            playPauseButton.isEnabled = true
-            stopButton.isEnabled = true
-            viewModel.playerState.value = .playing
-        case .ended: break
-        }
-    }
     
     private func animateCardView(to state: PlayPauseState) {
         UIView.animate(withDuration: 0.75, delay: 0, usingSpringWithDamping: 0.5, initialSpringVelocity: 1, options: [.curveEaseOut, .allowUserInteraction], animations: {
@@ -354,75 +244,58 @@ class MusicDetailViewController: UIViewController {
         })
     }
 
-    @objc private func stopEvent() {
-        playPauseButton.isEnabled = false
-        stopButton.isEnabled = false
-
-        switch viewModel.playerState.value {
-        case .neutral, .ended: break
-        case .playing, .paused:
-            viewModel.timer?.invalidate()
-            currentTimeSlider.value = Float(0.00)
-            viewModel.stop()
-            setPlayButton(to: .play)
-            playPauseButton.isEnabled = true
-            viewModel.playerState.value = .neutral
-        }
-    }
-
     private enum PlayPauseState {
         case play
         case pause
     }
 
-    private func setPlayButton(to state: PlayPauseState) {
-        let imageName = state == .play ? "play" : "pause"
-        playPauseButton.setImage(UIImage(named: imageName)?.withRenderingMode(.alwaysOriginal), for: .normal)
-    }
+}
 
-    private func dragEvent() {
-        playPauseButton.isEnabled = false
-        stopButton.isEnabled = false
+// MARK: - PlayerViewDelegate
+
+extension MusicDetailViewController: PlayerViewDelegate {
+
+    func didTapPlayPauseButton() {
+        playerView.playPauseButton.isEnabled = false
+        
+        viewModel.playPause()
+        
         switch viewModel.playerState.value {
-        case .neutral, .paused, .playing:
-            viewModel.timer?.isPaused = true
-            viewModel.audioPlayerCurrentTime(currentTimeSlider.value)
-            viewModel.timer?.isPaused = false
-            playPauseButton.isEnabled = true
-            stopButton.isEnabled = true
+        case .neutral:
+            viewModel.playerState.value = .playing
+            viewModel.audioPlayerCurrentTime(0)
+            //            viewModel.play()
+            animateCardView(to: .play)
+            playerView.setPlayPauseButton(to: .pause)
+            playerView.playPauseButton.isEnabled = true
+        //            stopButton.isEnabled = true
+        case .playing:
+            //            viewModel.stop()
+            animateCardView(to: .pause)
+            playerView.setPlayPauseButton(to: .play)
+            playerView.playPauseButton.isEnabled = true
             viewModel.playerState.value = .paused
-            setPlayButton(to: .play)
+        case .paused:
+            //            viewModel.play()
+            animateCardView(to: .play)
+            playerView.setPlayPauseButton(to: .pause)
+            playerView.playPauseButton.isEnabled = true
+            viewModel.playerState.value = .playing
         case .ended: break
         }
     }
-
-}
-
-
-extension MusicDetailViewController {
-
-    private func disallow() {
-//        spinner.isHidden = false
-//        spinner.startAnimating()
-        currentTimeSlider.isEnabled = false
-        currentTimeSlider.isUserInteractionEnabled = false
-        playPauseButton.isEnabled = false
-        playPauseButton.isUserInteractionEnabled = false
-        stopButton.isEnabled = false
-        stopButton.isUserInteractionEnabled = false
-    }
-
-    private func allow() {
-//        spinner.stopAnimating()
-//        spinner.isHidden = true
-        currentTimeSlider.isEnabled = true
-        currentTimeSlider.isUserInteractionEnabled = true
-        playPauseButton.isEnabled = true
-        playPauseButton.isUserInteractionEnabled = true
-        setPlayButton(to: .play)
-        stopButton.isEnabled = true
-        stopButton.isUserInteractionEnabled = true
-    }
     
+    func sliderDidChange(value: Float) {
+        playerView.playPauseButton.isEnabled = false
+        viewModel.audioPlayerCurrentTime(playerView.currentTimeSlider.value)
+        
+        switch viewModel.playerState.value {
+        case .neutral, .paused, .playing:
+            playerView.playPauseButton.isEnabled = true
+            viewModel.playerState.value = .paused
+            playerView.setPlayPauseButton(to: .play)
+        case .ended: break
+        }
+    }
     
 }

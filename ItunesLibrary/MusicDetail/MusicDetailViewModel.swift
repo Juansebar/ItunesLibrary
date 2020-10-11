@@ -19,7 +19,6 @@ enum PlayerState {
 protocol MusicDetailViewModelContract {
     var playerState: Box<PlayerState> { get set }
     
-    var timer: CADisplayLink? { get }
     var songProgress: Box<Float> { get }
     var currentTime: Box<String?> { get }
     var duration: Box<String?> { get }
@@ -37,10 +36,9 @@ protocol MusicDetailViewModelContract {
     
     func setSongPreviewDidDownloadClosure(callback: @escaping () -> Void)
     func play()
-    func stop()
+    func pause()
     func audioPlayerCurrentTime(_ value: Float)
-    func handlePlayEvent()
-    func handleStopEvent()
+//    func handlePlayEvent()
     
     func playPause()
     
@@ -85,8 +83,6 @@ class MusicDetailViewModel: NSObject, MusicDetailViewModelContract {
         return attribute(text: song.genre, title: "Genre")
     }
     
-    var timer: CADisplayLink?
-    
     let songProgress: Box<Float> = Box(0)
     
 //    var playerState: PlayerState = .neutral {
@@ -123,6 +119,8 @@ class MusicDetailViewModel: NSObject, MusicDetailViewModelContract {
     
     deinit {
         print("MusicDetailViewModel - deinit")
+        guard let playerItem = self.playerItem else { return }
+        NotificationCenter.default.removeObserver(self, name: NSNotification.Name.AVPlayerItemDidPlayToEndTime, object: playerItem)
     }
     
     init(_ song: Song) {
@@ -150,106 +148,79 @@ class MusicDetailViewModel: NSObject, MusicDetailViewModelContract {
             case .success(let image):
                 self.artwork.value = image
             case .failure(let error):
-                // handle error
                 print(error.localizedDescription)
             }
         }
     }
     
-    private var audioPlayer: AVPlayer = {
+    private var audioPlayer: AVPlayer! = {
         let avPlayer = AVPlayer()
         avPlayer.automaticallyWaitsToMinimizeStalling = false
         return avPlayer
     }()
+    
+    private var playerItem: AVPlayerItem?
     
     private func fetchPreview() {
         DispatchQueue.global(qos: .userInitiated).async { [weak self] in
             guard let urlString = self?.song.previewUrl, let previewUrl = URL(string: urlString) else { return }
 
             let playerItem = AVPlayerItem(url: previewUrl)
+            self?.playerItem = playerItem
             self?.audioPlayer.replaceCurrentItem(with: playerItem)
-            
-//            let timer = CMTimeMake(value: 1, timescale: 3)
-//            let times = [NSValue(time: timer)]
-//                
-//            self?.audioPlayer.addBoundaryTimeObserver(forTimes: times, queue: .main, using: {
-//                print("Episode started playing")
-//            })
-            
             self?.observeAudioPlayerCurrentTime()
             
             DispatchQueue.main.async { [weak self] in
                 self?.songPreviewDidDownload?()
             }
+            
+            guard self != nil else { return }
+            NotificationCenter.default.addObserver(self!, selector: #selector(self?.playerDidFinishPlaying), name: NSNotification.Name.AVPlayerItemDidPlayToEndTime, object: playerItem)
         }
     }
     
     func play() {
-        timer = CADisplayLink(target: self, selector: #selector(timerFired))
-        timer?.add(to: RunLoop.current, forMode: RunLoop.Mode.common)
         audioPlayer.play()
     }
     
-    func stop() {
-//        audioPlayer.stop()
-    }
-    
     func playPause() {
-        if audioPlayer.timeControlStatus == .paused {
-            audioPlayer.play()
-        } else {
-            audioPlayer.pause()
+        switch audioPlayer.timeControlStatus {
+        case .paused: audioPlayer.play()
+        case .playing: audioPlayer.pause()
+        default: break
         }
     }
     
     func pause() {
-        if audioPlayer.timeControlStatus == .paused {
-            return
-        } else {
-            
-        }
         audioPlayer.pause()
     }
     
-    func handlePlayEvent() {
-        switch playerState.value {
-        case .neutral:
-            playerState.value = .playing
-//            audioPlayer.currentTime = 0.00
-            
-            //                    viewModel.audioPlayerCurrentTime(0)
-            play()
-//                        playerState = .playing
-            
-        case .playing:
-            //            timer.invalidate()
-            //            audioPlayer?.pause()
-            pause()
-            playerState.value = .paused
-        case .paused:
-            playerState.value = .playing
-            play()
-        //            playerState = .playing
-        case .ended: break
-        }
-    }
+//    func handlePlayEvent() {
+//        switch playerState.value {
+//        case .neutral:
+//            playerState.value = .playing
+////            audioPlayer.currentTime = 0.00
+//
+//            //                    viewModel.audioPlayerCurrentTime(0)
+//            play()
+////                        playerState = .playing
+//
+//        case .playing:
+//            //            timer.invalidate()
+//            //            audioPlayer?.pause()
+//            pause()
+//            playerState.value = .paused
+//        case .paused:
+//            playerState.value = .playing
+//            play()
+//        //            playerState = .playing
+//        case .ended: break
+//        }
+//    }
     
-    func handleStopEvent() {
-        switch playerState.value {
-        case .neutral, .ended: break
-        case .playing, .paused:
-            timer?.invalidate()
-            //            timer.invalidate()
-            //                    progress.value = Float(0.00)
-            //            start.set(0.00)
-            stop()
-            //            audioPlayer!.stop()
-            playerState.value = .neutral
-        }
-    }
-    
-    @objc func timerFired() {
-        timerEvent()
+    @objc private func playerDidFinishPlaying() {
+        playerState.value = .ended
+        audioPlayerCurrentTime(0)
     }
     
     private func observeAudioPlayerCurrentTime() {
@@ -271,24 +242,13 @@ class MusicDetailViewModel: NSObject, MusicDetailViewModelContract {
         songProgress.value = percentage
     }
     
-    private func timerEvent() {
-//        songProgress.value = Float(audioPlayer!.currentTime / audioPlayer!.duration)
+    func audioPlayerCurrentTime(_ percentage: Float) {
+        guard let duration = audioPlayer.currentItem?.duration else { return }
+        let durationInSeconds = CMTimeGetSeconds(duration)
+        let seekTimeInSeconds = Float64(percentage) * durationInSeconds
+        let seekTime = CMTimeMakeWithSeconds(seekTimeInSeconds, preferredTimescale: Int32(NSEC_PER_SEC))
         
-//        start.set(audioPlayer!.currentTime)
-//        duration.set(audioPlayer!.duration - audioPlayer!.currentTime)
-    }
-    
-    func audioPlayerCurrentTime(_ value: Float) {
-//        guard audioPlayer != nil else { return }
-//        audioPlayer?.pause()
-//        playerState.value = .paused
-//        audioPlayer?.currentTime = audioPlayer!.duration * Double(value)
-//        audioPlayer?.play()
-    }
-    
-    private func formatTime(string: String) -> String {
-        
-        return string
+        audioPlayer.seek(to: seekTime)
     }
     
     private func attribute(text: String, title: String) -> NSAttributedString {
@@ -305,17 +265,6 @@ class MusicDetailViewModel: NSObject, MusicDetailViewModelContract {
         let price = max(price, 0)
         
         return price > 0 ? "\(currencySymbol)\(price)" : ""
-    }
-    
-}
-
-extension MusicDetailViewModel: AVAudioPlayerDelegate {
-    
-    func audioPlayerDidFinishPlaying(_ player: AVAudioPlayer, successfully flag: Bool) {
-        print("Audio ended - \(playerState.value)")
-        if playerState.value == .playing {
-            playerState.value = .ended
-        }
     }
     
 }
