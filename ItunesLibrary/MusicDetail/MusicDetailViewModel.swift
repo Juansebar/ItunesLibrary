@@ -118,7 +118,6 @@ class MusicDetailViewModel: NSObject, MusicDetailViewModelContract {
 //    }
     
     deinit {
-        print("MusicDetailViewModel - deinit")
         guard let playerItem = self.playerItem else { return }
         NotificationCenter.default.removeObserver(self, name: NSNotification.Name.AVPlayerItemDidPlayToEndTime, object: playerItem)
     }
@@ -127,9 +126,7 @@ class MusicDetailViewModel: NSObject, MusicDetailViewModelContract {
         self.song = song
         super.init()
         
-        
         fetchArtwork()
-//        fetchPreview()
     }
     
     private var songPreviewDidDownload: (() -> Void)?

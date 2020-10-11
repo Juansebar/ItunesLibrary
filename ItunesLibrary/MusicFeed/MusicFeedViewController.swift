@@ -12,14 +12,17 @@ class MusicFeedViewController: BaseTableViewController {
     
     private let viewModel: MusicFeedViewModelContract
     
+    
     private lazy var searchController: UISearchController = {
         let searchController = UISearchController(searchResultsController: nil)
         searchController.searchBar.delegate = self
         searchController.searchBar.placeholder = "Find in Music"
-        searchController.searchBar.tintColor = UIColor.systemRed
+        searchController.searchBar.tintColor = Colors.red.color
         searchController.searchBar.enablesReturnKeyAutomatically = true
         return searchController
     }()
+    
+    // MARK: - Init
     
     init(viewModel: MusicFeedViewModelContract) {
         self.viewModel = viewModel
@@ -49,6 +52,8 @@ class MusicFeedViewController: BaseTableViewController {
         navigationItem.searchController = searchController
         navigationItem.hidesSearchBarWhenScrolling = true
     }
+    
+    // MARK: - UI Setup
     
     internal override func setupViews() {
         tableView.register(MusicFeedCell.self, forCellReuseIdentifier: MusicFeedCell.identifier)
@@ -89,8 +94,6 @@ extension MusicFeedViewController {
         return cell
     }
     
-    
-    
 }
 
 // MARK: - UISearchBarDelegate
@@ -100,7 +103,6 @@ extension MusicFeedViewController: UISearchBarDelegate {
     func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
         timer?.invalidate()  // Invalidates timer if text is changing quickly
         timer = Timer.scheduledTimer(withTimeInterval: 0.5, repeats: false, block: { (_) in
-            // This will actually fire my search
             self.viewModel.fetchMusic(with: searchText)
         })
     }
@@ -110,4 +112,3 @@ extension MusicFeedViewController: UISearchBarDelegate {
     }
     
 }
-

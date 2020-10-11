@@ -15,6 +15,11 @@ protocol PlayerViewDelegate: class {
     
 }
 
+enum PlayPauseState {
+    case play
+    case pause
+}
+
 class PlayerView: UIView {
     
     lazy var playPauseButton: UIButton = {
@@ -31,7 +36,7 @@ class PlayerView: UIView {
         slider.minimumValue = 0
         slider.maximumValue = 1
         slider.isContinuous = true
-        slider.tintColor = UIColor.systemRed //Colors.karyn.color
+        slider.tintColor = Colors.red.color
         slider.thumbTintColor = Colors.white.color
         slider.addTarget(self, action: #selector(sliderDidChange), for: .valueChanged)
         slider.translatesAutoresizingMaskIntoConstraints = false
@@ -40,7 +45,7 @@ class PlayerView: UIView {
     
     let currentTimeLabel: UILabel = {
         let label = UILabel()
-        label.textColor = UIColor.lightGray
+        label.textColor = Colors.lightGray.color
         label.font = Fonts.text.font
         label.text = "00:00"
         label.translatesAutoresizingMaskIntoConstraints = false
@@ -49,7 +54,7 @@ class PlayerView: UIView {
     
     let durationLabel: UILabel = {
         let label = UILabel()
-        label.textColor = UIColor.lightGray
+        label.textColor = Colors.lightGray.color
         label.font = Fonts.text.font
         label.text = "--:--"
         label.textAlignment = .right
@@ -66,10 +71,7 @@ class PlayerView: UIView {
     
     weak var delegate: PlayerViewDelegate?
     
-    enum PlayPauseState {
-        case play
-        case pause
-    }
+    // MARK: - Init
     
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -81,6 +83,8 @@ class PlayerView: UIView {
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
+    
+    // MARK: - UI Setup
     
     private func setupViews() {
         addSubview(playPauseButton)

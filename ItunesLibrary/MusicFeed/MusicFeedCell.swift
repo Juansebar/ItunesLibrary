@@ -21,7 +21,6 @@ class MusicFeedCell: BaseTableViewCell {
         return imageView
     }()
     
-    
     private let trackNameLabel: UILabel = {
         let label = UILabel()
         label.font = Fonts.mediumBoldTitle.font
@@ -46,11 +45,7 @@ class MusicFeedCell: BaseTableViewCell {
         return stackView
     }()
     
-//    override var isHighlighted: Bool {
-//        didSet {
-//            animate(isHighlighted: isHighlighted)
-//        }
-//    }
+    // MARK: - Init
     
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
@@ -61,6 +56,8 @@ class MusicFeedCell: BaseTableViewCell {
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
+    
+    // MARK: - UI Setup
     
     override func setupViews() {
         super.setupViews()
@@ -88,17 +85,6 @@ class MusicFeedCell: BaseTableViewCell {
         albumImageView.loadImage(urlString: song.artworkUrl60)
         trackNameLabel.text = song.trackName
         artistNameLabel.text = song.artistName
-    }
-    
-    private func animate(isHighlighted: Bool) {
-        print(isHighlighted)
-        UIView.animate(withDuration: 1, delay: 0, options: isHighlighted ? .curveEaseIn : .curveEaseOut, animations: {
-            if isHighlighted {
-                self.contentView.backgroundColor = UIColor.blue
-            } else {
-                self.contentView.backgroundColor = UIColor.yellow
-            }
-        })
     }
     
 }

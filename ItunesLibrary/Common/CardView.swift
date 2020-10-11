@@ -98,7 +98,6 @@ class CardView: UIView {
     private func showInteractionAnimation() {
         UIView.animate(withDuration: 0.3, delay: 0, usingSpringWithDamping: 0.5, initialSpringVelocity: 1, options: [.autoreverse, .allowUserInteraction], animations: {
             self.containerView.transform = .init(scaleX: 0.98, y: 0.98)
-//            UIView.animate(withDuration: 0.5, delay: 0, usingSpringWithDamping: 0.2, initialSpringVelocity: <#T##CGFloat#>, options: <#T##UIView.AnimationOptions#>, animations: <#T##() -> Void#>, completion: <#T##((Bool) -> Void)?##((Bool) -> Void)?##(Bool) -> Void#>)
         }, completion: { (_) in
             self.containerView.transform = .identity
         })

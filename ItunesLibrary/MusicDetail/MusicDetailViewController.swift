@@ -13,33 +13,12 @@ class MusicDetailViewController: UIViewController {
     
     private var viewModel: MusicDetailViewModelContract
     
-    private let cardViewScaleTransform = CGAffineTransform(scaleX: 0.85, y: 0.85)
-    
-    deinit {
-        print("MusicDetailViewController - deinit")
-    }
-
-    
-    private enum PlayerState {
-        case neutral
-        case playing
-        case paused
-        case ended
-    }
-    
-    private lazy var playerView: PlayerView = {
-        let playerView = PlayerView()
-        playerView.delegate = self
-        playerView.isUserInteractionEnabled = true
-        playerView.translatesAutoresizingMaskIntoConstraints = false
-        return playerView
-    }()
     
     private let artworkImageView: UIImageView = {
         let imageView = UIImageView()
         imageView.contentMode = .scaleAspectFill
         imageView.clipsToBounds = true
-        imageView.backgroundColor = Colors.lightGray.color
+        imageView.backgroundColor = Colors.mediumGray.color
         imageView.translatesAutoresizingMaskIntoConstraints = false
         return imageView
     }()
@@ -54,7 +33,7 @@ class MusicDetailViewController: UIViewController {
     
     private lazy var cardView: CardView = {
         let cardView = CardView(cardViews: (frontView: self.artworkImageView, backView: self.infoView))
-        cardView.layer.shadowColor = Colors.lightGray.color.cgColor
+        cardView.layer.shadowColor = Colors.mediumGray.color.cgColor
         cardView.layer.shadowRadius = 8
         cardView.layer.shadowOpacity = 0.8
         cardView.layer.shadowOffset = .init(width: 0, height: 5)
@@ -72,7 +51,7 @@ class MusicDetailViewController: UIViewController {
     
     private let artistNameLabel: UILabel = {
         let label = UILabel()
-        label.textColor = UIColor.lightGray
+        label.textColor = Colors.lightGray.color
         label.font = Fonts.largeText.font
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
@@ -89,7 +68,7 @@ class MusicDetailViewController: UIViewController {
     
     private let releaseDateLabel: UILabel = {
         let label = UILabel()
-        label.textColor = UIColor.lightGray
+        label.textColor = Colors.lightGray.color
         label.font = Fonts.largeText.font
         label.numberOfLines = 3
         label.translatesAutoresizingMaskIntoConstraints = false
@@ -98,7 +77,7 @@ class MusicDetailViewController: UIViewController {
     
     private let genreLabel: UILabel = {
         let label = UILabel()
-        label.textColor = UIColor.lightGray
+        label.textColor = Colors.lightGray.color
         label.font = Fonts.largeText.font
         label.numberOfLines = 3
         label.translatesAutoresizingMaskIntoConstraints = false
@@ -107,7 +86,7 @@ class MusicDetailViewController: UIViewController {
     
     private let priceLabel: UILabel = {
         let label = UILabel()
-        label.textColor = UIColor.lightGray
+        label.textColor = Colors.lightGray.color
         label.font = Fonts.largeText.font
         label.numberOfLines = 3
         label.translatesAutoresizingMaskIntoConstraints = false
@@ -130,6 +109,16 @@ class MusicDetailViewController: UIViewController {
         stackView.translatesAutoresizingMaskIntoConstraints = false
         return stackView
     }()
+    
+    private lazy var playerView: PlayerView = {
+        let playerView = PlayerView()
+        playerView.delegate = self
+        playerView.isUserInteractionEnabled = true
+        playerView.translatesAutoresizingMaskIntoConstraints = false
+        return playerView
+    }()
+    
+    // MARK: - Init
     
     init(viewModel: MusicDetailViewModelContract) {
         self.viewModel = viewModel
@@ -190,6 +179,8 @@ class MusicDetailViewController: UIViewController {
         viewModel.pause()
     }
     
+    // MARK: - UI Setup
+    
     func setupViews() {
         view.addSubview(cardView)
         view.addSubview(trackLabelsStackView)
@@ -202,14 +193,10 @@ class MusicDetailViewController: UIViewController {
         NSLayoutConstraint.activate([
             cardView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 10),
             cardView.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-//            cardView.leftAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leftAnchor, constant: 25),
-//            cardView.rightAnchor.constraint(equalTo: view.safeAreaLayoutGuide.rightAnchor, constant: -25),
-//            cardView.heightAnchor.constraint(equalTo: cardView.widthAnchor),
             cardView.heightAnchor.constraint(equalToConstant: min(view.frame.width, view.frame.height) * 3/4),
             cardView.widthAnchor.constraint(equalTo: cardView.heightAnchor)
         ])
-        
-        cardView.transform = cardViewScaleTransform
+        cardView.transform = CGAffineTransform(scaleX: 0.85, y: 0.85)
         
         NSLayoutConstraint.activate([
             trackLabelsStackView.leftAnchor.constraint(equalTo: view.leftAnchor, constant: 25),
@@ -239,22 +226,17 @@ class MusicDetailViewController: UIViewController {
             if state == .play {
                 self.cardView.transform = .identity
             } else {
-                self.cardView.transform = self.cardViewScaleTransform
+                self.cardView.transform = CGAffineTransform(scaleX: 0.85, y: 0.85)
             }
         })
     }
-
-    private enum PlayPauseState {
-        case play
-        case pause
-    }
-
+    
 }
 
 // MARK: - PlayerViewDelegate
 
 extension MusicDetailViewController: PlayerViewDelegate {
-
+    
     func didTapPlayPauseButton() {
         playerView.playPauseButton.isEnabled = false
         
@@ -264,19 +246,15 @@ extension MusicDetailViewController: PlayerViewDelegate {
         case .neutral:
             viewModel.playerState.value = .playing
             viewModel.audioPlayerCurrentTime(0)
-            //            viewModel.play()
             animateCardView(to: .play)
             playerView.setPlayPauseButton(to: .pause)
             playerView.playPauseButton.isEnabled = true
-        //            stopButton.isEnabled = true
         case .playing:
-            //            viewModel.stop()
             animateCardView(to: .pause)
             playerView.setPlayPauseButton(to: .play)
             playerView.playPauseButton.isEnabled = true
             viewModel.playerState.value = .paused
         case .paused:
-            //            viewModel.play()
             animateCardView(to: .play)
             playerView.setPlayPauseButton(to: .pause)
             playerView.playPauseButton.isEnabled = true

@@ -20,7 +20,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         guard let windowScene = (scene as? UIWindowScene) else { return }
         window = UIWindow(windowScene: windowScene)
         let navigationController = UINavigationController(rootViewController: MusicFeedViewController(viewModel: MusicFeedViewModel()))
-        navigationController.navigationBar.tintColor = UIColor.systemRed
+        navigationController.navigationBar.tintColor = Colors.red.color
         window?.rootViewController = navigationController
         window?.makeKeyAndVisible()
     }
