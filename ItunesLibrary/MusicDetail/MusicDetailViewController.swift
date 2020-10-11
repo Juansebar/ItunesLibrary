@@ -11,9 +11,7 @@ import AVFoundation
 
 class MusicDetailViewController: UIViewController {
     
-    private let viewModel: MusicDetailViewModelContract
-    
-    private var audioPlayer: AVAudioPlayer?
+    private var viewModel: MusicDetailViewModelContract
     
     private enum PlayerState {
         case neutral
@@ -29,17 +27,9 @@ class MusicDetailViewController: UIViewController {
         case drag
     }
     
-    private var playerState: PlayerState = .neutral {
-        didSet {
-            //            if Common.showStatus {
-            //                status.text = "." + String(describing: playerState)
-            //            }
-        }
-    }
-    
     private lazy var playButton: UIButton = {
         let button = UIButton(type: .system)
-        button.setImage(UIImage(named: "play")?.withRenderingMode(.alwaysOriginal), for: .normal)
+        button.setImage(UIImage(named: "play"), for: .normal)
         button.imageView?.contentMode = .scaleAspectFill
         button.addTarget(self, action: #selector(playEvent), for: .touchUpInside)
         button.translatesAutoresizingMaskIntoConstraints = false
@@ -55,17 +45,17 @@ class MusicDetailViewController: UIViewController {
         return button
     }()
     
-    private let progress: UISlider = {
+    private lazy var progress: UISlider = {
         let slider = UISlider()
         slider.minimumValue = 0
         slider.maximumValue = 1
         slider.isContinuous = true
         slider.tintColor = UIColor.cyan //Colors.karyn.color
-        slider.thumbTintColor = Colors.lightGray.color
+        slider.thumbTintColor = Colors.white.color
         slider.addTarget(self, action: #selector(progressDidChange), for: .valueChanged)
+        slider.translatesAutoresizingMaskIntoConstraints = false
         return slider
     }()
-    
     
     private let artworkImageView: UIImageView = {
         let imageView = UIImageView()
@@ -179,22 +169,24 @@ class MusicDetailViewController: UIViewController {
         setupViews()
         setupConstraints()
         
-//        setupPlayer()
-        
         viewModel.artwork.bind { [weak self] (image) in
             self?.artworkImageView.image = image
         }
         
         disallow()
-        playerState = .neutral
         viewModel.setSongPreviewDidDownloadClosure { [weak self] (player) in
-            self?.audioPlayer = player
-            self?.audioPlayer?.numberOfLoops = 0
-            self?.audioPlayer?.delegate = self
-            self?.audioPlayer?.prepareToPlay()
-            
-            guard let end = self?.audioPlayer?.duration else { return }
             self?.allow()
+        }
+        
+        viewModel.songProgress.bind { [weak self] (progress) in
+            self?.progress.value = progress
+        }
+        
+        viewModel.playerState.bind { [weak self] (state) in
+            if state == .ended {
+                self?.setPlayButton(to: .play)
+                self?.viewModel.playerState.value = .neutral
+            }
         }
         
         songNameLabel.text = viewModel.trackName
@@ -207,24 +199,8 @@ class MusicDetailViewController: UIViewController {
     
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
-        audioPlayer?.stop()
+        viewModel.stop()
     }
-    
-//    private func setupPlayer() {
-//        disallow()
-//        do {
-//            audioPlayer = try AVAudioPlayer(data: Data(contentsOf: viewModel.previewUrl))
-//            audioPlayer?.numberOfLoops = 0
-//            audioPlayer?.delegate = self
-//            audioPlayer?.prepareToPlay()
-//
-//            guard let end = audioPlayer?.duration else { return }
-//            allow()
-//        } catch {
-//            // Show some alert
-//            print(error.localizedDescription)
-//        }
-//    }
     
     func setupViews() {
         view.addSubview(cardView)
@@ -257,97 +233,96 @@ class MusicDetailViewController: UIViewController {
         
         NSLayoutConstraint.activate([
             playButton.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -20),
-            playButton.centerXAnchor.constraint(equalTo: view.centerXAnchor, constant: 0),
+            playButton.centerXAnchor.constraint(equalTo: view.centerXAnchor),
             playButton.heightAnchor.constraint(equalToConstant: 80),
             playButton.widthAnchor.constraint(equalToConstant: 80)
         ])
         
-//        NSLayoutConstraint.activate([
-//            progress.leftAnchor.constraint(equalTo: additionInfoStackView.leftAnchor),
-//            progress.rightAnchor.constraint(equalTo: additionInfoStackView.rightAnchor),
-//            progress.bottomAnchor.constraint(equalTo: playButton.topAnchor, constant: -10)
-//        ])
+        NSLayoutConstraint.activate([
+            progress.leftAnchor.constraint(equalTo: view.leftAnchor, constant: 25),
+            progress.rightAnchor.constraint(equalTo: view.rightAnchor, constant: -25),
+            progress.bottomAnchor.constraint(equalTo: playButton.topAnchor, constant: -10),
+            progress.heightAnchor.constraint(equalToConstant: 50)
+        ])
     }
     
     // MARK: - Local routines
-    
-    @objc private func timerFired() { timerEvent() }
     
     @objc private func progressDidChange() { dragEvent() }
     
     @objc private func playEvent() {
         playButton.isEnabled = false
         stopButton.isEnabled = false
-        switch playerState {
+        
+        switch viewModel.playerState.value {
         case .neutral:
-            audioPlayer!.currentTime = 0.00
-            play()
-            playerState = .playing
+            viewModel.playerState.value = .playing
+            viewModel.audioPlayerCurrentTime(0)
+            viewModel.play()
+            setPlayButton(to: .pause)
             playButton.isEnabled = true
             stopButton.isEnabled = true
         case .playing:
-//            timer.invalidate()
-            audioPlayer?.pause()
-            playButton.setImage(UIImage(named: "play"), for: .normal)
+            viewModel.timer?.invalidate()
+            viewModel.stop()
+            setPlayButton(to: .play)
             playButton.isEnabled = true
             stopButton.isEnabled = true
-            playerState = .paused
+            viewModel.playerState.value = .paused
         case .paused:
-            play()
+            viewModel.play()
+            setPlayButton(to: .pause)
             playButton.isEnabled = true
             stopButton.isEnabled = true
-            playerState = .playing
+            viewModel.playerState.value = .playing
         case .ended: break
         }
-    }
-    
-    private func play() {
-        audioPlayer!.play()
-//        timer.add(to: RunLoop.current, forMode: RunLoop.Mode.common)
-        playButton.setImage(UIImage(named: "pause"), for: .normal)
     }
     
     @objc private func stopEvent() {
         playButton.isEnabled = false
         stopButton.isEnabled = false
-        switch playerState {
+
+        switch viewModel.playerState.value {
         case .neutral, .ended: break
         case .playing, .paused:
-//            timer.invalidate()
+            viewModel.timer?.invalidate()
             progress.value = Float(0.00)
-//            start.set(0.00)
-            audioPlayer!.stop()
-            playButton.setImage(UIImage(named: "play"), for: .normal)
+            viewModel.stop()
+            setPlayButton(to: .play)
             playButton.isEnabled = true
-            playerState = .neutral
+            viewModel.playerState.value = .neutral
         }
     }
     
-    private func timerEvent() {
-        progress.value = Float(audioPlayer!.currentTime / audioPlayer!.duration)
-//        start.set(audioPlayer!.currentTime)
-//        duration.set(audioPlayer!.duration - audioPlayer!.currentTime)
+    private enum PlayButton {
+        case play
+        case pause
+    }
+    
+    private func setPlayButton(to state: PlayButton) {
+        let imageName = state == .play ? "play" : "pause"
+        playButton.setImage(UIImage(named: imageName)?.withRenderingMode(.alwaysOriginal), for: .normal)
     }
     
     private func dragEvent() {
         playButton.isEnabled = false
         stopButton.isEnabled = false
-        switch playerState {
+        switch viewModel.playerState.value {
         case .neutral, .paused, .playing:
-//            timer.isPaused = true
-            audioPlayer!.currentTime = audioPlayer!.duration * Double(progress.value)
-//            start.set(player!.currentTime)
-//            timer.isPaused = false
+            viewModel.timer?.isPaused = true
+            viewModel.audioPlayerCurrentTime(progress.value)
+            viewModel.timer?.isPaused = false
             playButton.isEnabled = true
             stopButton.isEnabled = true
-            playerState = .paused
+            viewModel.playerState.value = .paused
+            setPlayButton(to: .play)
         case .ended: break
         }
     }
     
 }
 
-// MARK: - XongViewType
 
 extension MusicDetailViewController {
     
@@ -369,18 +344,9 @@ extension MusicDetailViewController {
         progress.isUserInteractionEnabled = true
         playButton.isEnabled = true
         playButton.isUserInteractionEnabled = true
+        setPlayButton(to: .play)
         stopButton.isEnabled = true
         stopButton.isUserInteractionEnabled = true
-    }
-    
-}
-
-extension MusicDetailViewController: AVAudioPlayerDelegate {
-    
-    func audioPlayerDidFinishPlaying(_ player: AVAudioPlayer, successfully flag: Bool) {
-        if playerState == .playing {
-            playerState = .ended
-        }
     }
     
 }

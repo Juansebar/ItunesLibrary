@@ -80,33 +80,24 @@ class CardView: UIView {
         
         isDisplayingFront = !isDisplayingFront
         
-//        UIView.animate(withDuration: 0.1, delay: 0, options: .curveLinear, animations: {
-//            self.containerView.transform = .init(scaleX: 0.98, y: 0.98)
-//            self.frontView.transform = .init(scaleX: 0.98, y: 0.98)
-//            self.backView.transform = .init(scaleX: 0.98, y: 0.98)
-//        }, completion: { (_) in
-//            UIView.transition(with: self.containerView, duration: 0.5, options: [.transitionFlipFromRight, .curveLinear], animations: {
-//                self.containerView.bringSubviewToFront(self.cardViews.frontView)
-//            }, completion: { _ in
-//                UIView.animate(withDuration: 0.1, delay: 0, options: .curveLinear, animations: {
-//                    self.containerView.transform = .identity
-//                    self.frontView.transform = .identity
-//                    self.backView.transform = .identity
-//                })
-//            })
-//        })
+        isUserInteractionEnabled = false
         
-        UIView.animate(withDuration: 0.6, delay: 0, options: .autoreverse, animations: {
+        UIView.animate(withDuration: 0.1, delay: 0, options: .curveLinear, animations: {
             self.containerView.transform = .init(scaleX: 0.98, y: 0.98)
             self.frontView.transform = .init(scaleX: 0.98, y: 0.98)
             self.backView.transform = .init(scaleX: 0.98, y: 0.98)
+        }, completion: { (_) in
             UIView.transition(with: self.containerView, duration: 0.5, options: [.transitionFlipFromRight, .curveLinear], animations: {
                 self.containerView.bringSubviewToFront(self.cardViews.frontView)
+            }, completion: { _ in
+                UIView.animate(withDuration: 0.1, delay: 0, options: .curveLinear, animations: {
+                    self.containerView.transform = .identity
+                    self.frontView.transform = .identity
+                    self.backView.transform = .identity
+                    
+                    self.isUserInteractionEnabled = true
+                })
             })
-        }, completion: { (_) in
-                self.containerView.transform = .identity
-                self.frontView.transform = .identity
-                self.backView.transform = .identity
         })
     }
     
