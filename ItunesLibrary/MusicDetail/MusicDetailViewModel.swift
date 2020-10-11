@@ -64,7 +64,8 @@ class MusicDetailViewModel: NSObject, MusicDetailViewModelContract {
         return attribute(text: formattedPrice, title: "Song Price")
     }
     var releaseDate: NSAttributedString? {
-        return attribute(text: song.releaseDate, title: "Released")
+        let dateString = Date.dayMonthYear(dateString: song.releaseDate)
+        return attribute(text: dateString, title: "Released")
     }
     var genre: NSAttributedString? {
         return attribute(text: song.genre, title: "Genre")
@@ -228,8 +229,6 @@ class MusicDetailViewModel: NSObject, MusicDetailViewModelContract {
         audioPlayer?.currentTime = audioPlayer!.duration * Double(value)
 //        audioPlayer?.play()
     }
-    
-    private let dateFormatter = DateFormatter()
     
     private func formatTime(string: String) -> String {
         
