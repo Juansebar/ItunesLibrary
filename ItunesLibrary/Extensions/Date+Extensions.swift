@@ -14,7 +14,7 @@ extension Date {
         guard let date = ISO8601DateFormatter().date(from: dateString) else { return "" }
         
         let formatter = DateFormatter()
-        formatter.dateFormat = "M/d/yy"
+        formatter.dateFormat = "MMM d, yyyy"
         return formatter.string(from: date)
     }
     

@@ -13,6 +13,8 @@ class CardView: UIView {
     private var cardViews: CardViews
     private var isDisplayingFront = true
     
+    private var interactionTimer: Timer?
+    
     private let containerView: UIView = {
         let view = UIView()
         view.backgroundColor = .clear
@@ -25,6 +27,13 @@ class CardView: UIView {
     private let frontView: UIView!
     private let backView: UIView!
     
+    private let blurView: UIVisualEffectView = {
+        let blurEffect = UIBlurEffect(style: .light)
+        let blurredEffectView = UIVisualEffectView(effect: blurEffect)
+        blurredEffectView.translatesAutoresizingMaskIntoConstraints = false
+        return blurredEffectView
+    }()
+    
     init(cardViews: CardViews) {
         self.cardViews = cardViews //(frontView: self.frontView, backView: self.backView)
         frontView = cardViews.frontView
@@ -34,6 +43,7 @@ class CardView: UIView {
         
         setupViews()
         setupConstraints()
+        setupTimer()
         
         self.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(flipCardAnimation)))
     }
@@ -48,6 +58,7 @@ class CardView: UIView {
         containerView.addSubview(backView)
         containerView.addSubview(frontView)
         addSubview(containerView)
+        backView.insertSubview(blurView, at: 0)
         
         backgroundColor = .clear
     }
@@ -67,11 +78,35 @@ class CardView: UIView {
             backView.leftAnchor.constraint(equalTo: containerView.leftAnchor),
             backView.topAnchor.constraint(equalTo: containerView.topAnchor),
             backView.rightAnchor.constraint(equalTo: containerView.rightAnchor),
-            backView.bottomAnchor.constraint(equalTo: containerView.bottomAnchor)
+            backView.bottomAnchor.constraint(equalTo: containerView.bottomAnchor),
+            
+            blurView.heightAnchor.constraint(equalTo: frontView.heightAnchor),
+            blurView.widthAnchor.constraint(equalTo: frontView.widthAnchor),
+            blurView.centerYAnchor.constraint(equalTo: frontView.centerYAnchor),
+            blurView.centerXAnchor.constraint(equalTo: frontView.centerXAnchor),
         ])
+        
+        blurView.frame = backView.bounds
+    }
+    
+    private func setupTimer() {
+        interactionTimer = Timer.scheduledTimer(withTimeInterval: 5, repeats: true, block: { (_) in
+            self.showInteractionAnimation()
+        })
+    }
+    
+    private func showInteractionAnimation() {
+        UIView.animate(withDuration: 0.3, delay: 0, usingSpringWithDamping: 0.5, initialSpringVelocity: 0.5, options: [.autoreverse, .allowUserInteraction], animations: {
+            self.containerView.transform = .init(scaleX: 0.98, y: 0.98)
+//            UIView.animate(withDuration: 0.5, delay: 0, usingSpringWithDamping: 0.2, initialSpringVelocity: <#T##CGFloat#>, options: <#T##UIView.AnimationOptions#>, animations: <#T##() -> Void#>, completion: <#T##((Bool) -> Void)?##((Bool) -> Void)?##(Bool) -> Void#>)
+        }, completion: { (_) in
+            self.containerView.transform = .identity
+        })
     }
     
     @objc private func flipCardAnimation() {
+        interactionTimer?.invalidate()
+        
         if isDisplayingFront {
             cardViews = (frontView: backView, backView: frontView)
         } else {

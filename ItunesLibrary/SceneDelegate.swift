@@ -19,7 +19,9 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         // This delegate does not imply the connecting scene or session are new (see `application:configurationForConnectingSceneSession` instead).
         guard let windowScene = (scene as? UIWindowScene) else { return }
         window = UIWindow(windowScene: windowScene)
-        window?.rootViewController = UINavigationController(rootViewController: MusicFeedViewController(viewModel: MusicFeedViewModel()))
+        let navigationController = UINavigationController(rootViewController: MusicFeedViewController(viewModel: MusicFeedViewModel()))
+        navigationController.navigationBar.tintColor = UIColor.systemRed
+        window?.rootViewController = navigationController
         window?.makeKeyAndVisible()
     }
 

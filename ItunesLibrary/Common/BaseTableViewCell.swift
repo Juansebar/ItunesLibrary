@@ -10,6 +10,19 @@ import UIKit
 
 class BaseTableViewCell: UITableViewCell {
     
+    var separatorLine: UIView = {
+        let view = UIView()
+        view.backgroundColor = UIColor.systemGray3
+        view.translatesAutoresizingMaskIntoConstraints = false
+        return view
+    }()
+    
+    var isSeparatorLineVisible: Bool = true {
+        didSet {
+            separatorLine.isHidden = !isSeparatorLineVisible
+        }
+    }
+    
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
         
@@ -25,9 +38,17 @@ class BaseTableViewCell: UITableViewCell {
     
     func setupViews() {
         selectionStyle = .none
+        
+        addSubview(separatorLine)
     }
     
     func setupConstraints() {
+        NSLayoutConstraint.activate([
+            separatorLine.leftAnchor.constraint(equalTo: leftAnchor, constant: 10),
+            separatorLine.rightAnchor.constraint(equalTo: rightAnchor, constant: 0),
+            separatorLine.bottomAnchor.constraint(equalTo: bottomAnchor),
+            separatorLine.heightAnchor.constraint(equalToConstant: 0.5)
+        ])
     }
     
 }

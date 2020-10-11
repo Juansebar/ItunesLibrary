@@ -16,6 +16,7 @@ class MusicFeedViewController: BaseTableViewController {
         let searchController = UISearchController(searchResultsController: nil)
         searchController.searchBar.delegate = self
         searchController.searchBar.placeholder = "Find in Music"
+        searchController.searchBar.tintColor = UIColor.systemRed
         searchController.searchBar.enablesReturnKeyAutomatically = true
         return searchController
     }()
@@ -32,6 +33,7 @@ class MusicFeedViewController: BaseTableViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
+        tableView.separatorStyle = .none
         navigationController?.navigationBar.prefersLargeTitles = true
         navigationItem.largeTitleDisplayMode = .always
         navigationItem.title = "Music"
@@ -55,6 +57,8 @@ class MusicFeedViewController: BaseTableViewController {
     private func updateTableView() {
         print("Reloading data")
     }
+    
+    var timer: Timer?
 
 }
 
@@ -85,6 +89,8 @@ extension MusicFeedViewController {
         return cell
     }
     
+    
+    
 }
 
 // MARK: - UISearchBarDelegate
@@ -92,7 +98,15 @@ extension MusicFeedViewController {
 extension MusicFeedViewController: UISearchBarDelegate {
     
     func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
-        
+        timer?.invalidate()  // Invalidates timer if text is changing quickly
+        timer = Timer.scheduledTimer(withTimeInterval: 0.5, repeats: false, block: { (_) in
+            // This will actually fire my search
+            self.viewModel.fetchMusic(with: searchText)
+        })
+    }
+    
+    func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
+        searchController.dismiss(animated: true)
     }
     
 }

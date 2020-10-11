@@ -33,6 +33,7 @@ struct Song: Decodable {
     let releaseDate: String
     let trackTimeMillis: Int
     let genre: String
+    let trackNumber: Int
     
     enum CodingKeys: String, CodingKey {
         case artistId
@@ -51,6 +52,7 @@ struct Song: Decodable {
         case releaseDate
         case trackTimeMillis
         case genre = "primaryGenreName"
+        case trackNumber
     }
 }
 

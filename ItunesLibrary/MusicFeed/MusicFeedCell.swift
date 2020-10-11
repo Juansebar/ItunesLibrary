@@ -84,6 +84,7 @@ class MusicFeedCell: BaseTableViewCell {
     }
     
     func configure(with song: Song) {
+        albumImageView.image = nil
         albumImageView.loadImage(urlString: song.artworkUrl60)
         trackNameLabel.text = song.trackName
         artistNameLabel.text = song.artistName

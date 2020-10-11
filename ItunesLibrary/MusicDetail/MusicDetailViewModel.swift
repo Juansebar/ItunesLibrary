@@ -30,15 +30,15 @@ protocol MusicDetailViewModelContract {
     var trackPrice: NSAttributedString? { get }
     var currency: String { get }
     var releaseDate: NSAttributedString? { get }
-    var trackTimeMillis: Int { get }
+    var trackTime: String { get }
     var genre: NSAttributedString? { get }
     
-    func setSongPreviewDidDownloadClosure(callback: @escaping (AVAudioPlayer) -> Void)
-    func play()
-    func stop()
-    func audioPlayerCurrentTime(_ value: Float)
-    func handlePlayEvent()
-    func handleStopEvent()
+//    func setSongPreviewDidDownloadClosure(callback: @escaping () -> Void)
+//    func play()
+//    func stop()
+//    func audioPlayerCurrentTime(_ value: Float)
+//    func handlePlayEvent()
+//    func handleStopEvent()
     
     
 }
@@ -49,7 +49,15 @@ class MusicDetailViewModel: NSObject, MusicDetailViewModelContract {
     var artistName: String { return song.artistName }
     var trackName: String { return song.trackName }
     var currency: String { return song.currency }
-    var trackTimeMillis: Int { return song.trackTimeMillis }
+    var trackTime: String {
+        let totalSeconds = song.trackTimeMillis / 1000
+        
+        let minutes = Double(totalSeconds / 60).rounded(.down)
+        let seconds = totalSeconds % 60
+        
+        return "\(Int(minutes)):\(seconds)"
+        
+    }
     let artwork: Box<UIImage?> = Box(nil)
 
     var collectionName: NSAttributedString? {
@@ -116,9 +124,9 @@ class MusicDetailViewModel: NSObject, MusicDetailViewModelContract {
 //        fetchPreview()
     }
     
-    private var songPreviewDidDownload: ((AVAudioPlayer) -> Void)?
+    private var songPreviewDidDownload: (() -> Void)?
     
-    func setSongPreviewDidDownloadClosure(callback: @escaping (AVAudioPlayer) -> Void) {
+    func setSongPreviewDidDownloadClosure(callback: @escaping () -> Void) {
         songPreviewDidDownload = callback
         fetchPreview()
     }
@@ -141,7 +149,7 @@ class MusicDetailViewModel: NSObject, MusicDetailViewModelContract {
     private var audioPlayer: AVAudioPlayer? {
         didSet {
             guard let player = audioPlayer else { return }
-            songPreviewDidDownload?(player)
+            songPreviewDidDownload?()
         }
     }
     
@@ -236,10 +244,10 @@ class MusicDetailViewModel: NSObject, MusicDetailViewModelContract {
     }
     
     private func attribute(text: String, title: String) -> NSAttributedString {
-        let mutatingString = NSMutableAttributedString(string: title + "\n", attributes: [NSAttributedString.Key.font : Fonts.mediumBoldTitle.font, NSAttributedString.Key.foregroundColor: UIColor.darkGray])
+        let mutatingString = NSMutableAttributedString(string: title + "\n", attributes: [NSAttributedString.Key.font : Fonts.mediumBoldTitle.font, NSAttributedString.Key.foregroundColor: UIColor.black])
         
-        mutatingString.append(NSAttributedString(string: "\n", attributes: [NSAttributedString.Key.font : UIFont.systemFont(ofSize: 4)]))
-        mutatingString.append(NSAttributedString(string: text, attributes: [NSAttributedString.Key.font : Fonts.text.font, NSAttributedString.Key.foregroundColor: Colors.lightGray.color]))
+        mutatingString.append(NSAttributedString(string: "\n", attributes: [NSAttributedString.Key.font : UIFont.systemFont(ofSize: 2)]))
+        mutatingString.append(NSAttributedString(string: "  " + text, attributes: [NSAttributedString.Key.font : Fonts.text.font, NSAttributedString.Key.foregroundColor: UIColor.black]))
         
         return mutatingString
     }
@@ -248,7 +256,7 @@ class MusicDetailViewModel: NSObject, MusicDetailViewModelContract {
         let currencySymbol = Currency(rawValue: currency)?.symbol ?? Currency.USD.symbol
         let price = max(price, 0)
         
-        return price > 0 ? "\(currencySymbol)\(price)" : "Free"
+        return price > 0 ? "\(currencySymbol)\(price)" : ""
     }
     
 }
