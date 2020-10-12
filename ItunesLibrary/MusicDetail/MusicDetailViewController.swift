@@ -176,7 +176,6 @@ class MusicDetailViewController: UIViewController {
         } else {
             priceLabel.attributedText = viewModel.collectionPrice
         }
-        
     }
     
     override func viewWillDisappear(_ animated: Bool) {

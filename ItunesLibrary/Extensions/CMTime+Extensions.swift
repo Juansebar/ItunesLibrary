@@ -11,6 +11,9 @@ import AVKit
 extension CMTime {
     
     func formatTimeMinuteSecond() -> String? {
+        if self == .invalid || self == .indefinite || self == .positiveInfinity {
+            return nil
+        }
         let totalSeconds = Int(CMTimeGetSeconds(self))
         let minutes = totalSeconds / 60
         let seconds = totalSeconds % 60

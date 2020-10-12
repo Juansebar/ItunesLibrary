@@ -26,6 +26,7 @@ class PlayerView: UIView {
         let button = UIButton(type: .system)
         button.setImage(UIImage(named: "play")?.withRenderingMode(.alwaysOriginal), for: .normal)
         button.imageView?.contentMode = .scaleAspectFill
+        button.isEnabled = false
         button.addTarget(self, action: #selector(playPauseEvent), for: .touchUpInside)
         button.translatesAutoresizingMaskIntoConstraints = false
         return button
