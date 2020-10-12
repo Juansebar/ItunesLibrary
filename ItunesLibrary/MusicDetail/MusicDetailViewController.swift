@@ -171,7 +171,12 @@ class MusicDetailViewController: UIViewController {
         albumNameLabel.attributedText = viewModel.collectionName
         releaseDateLabel.attributedText = viewModel.releaseDate
         genreLabel.attributedText = viewModel.genre
-        priceLabel.attributedText = viewModel.trackPrice
+        if let trackPriceString = viewModel.trackPrice {
+            priceLabel.attributedText = trackPriceString
+        } else {
+            priceLabel.attributedText = viewModel.collectionPrice
+        }
+        
     }
     
     override func viewWillDisappear(_ animated: Bool) {

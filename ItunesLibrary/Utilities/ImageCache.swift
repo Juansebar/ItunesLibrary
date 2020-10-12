@@ -12,10 +12,10 @@ public class ImageCache {
     public static let publicCache = ImageCache()
     private let cachedImages = NSCache<AnyObject, UIImage>()
     
-    private let webProvider = WebProvider()
+    private let webProvider = APIService()
     
     init() {
-        cachedImages.totalCostLimit = 20
+        cachedImages.totalCostLimit = 30
     }
     
     public final func image(url: URL) -> UIImage? {

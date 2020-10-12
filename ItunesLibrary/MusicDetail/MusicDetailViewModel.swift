@@ -17,11 +17,6 @@ enum PlayerState {
 }
 
 protocol MusicDetailViewModelContract {
-    var playerState: Box<PlayerState> { get set }
-    
-    var songProgress: Box<Float> { get }
-    var currentTime: Box<String?> { get }
-    var duration: Box<String?> { get }
     
     var artistName: String { get }
     var collectionName: NSAttributedString? { get }
@@ -31,37 +26,30 @@ protocol MusicDetailViewModelContract {
     var trackPrice: NSAttributedString? { get }
     var currency: String { get }
     var releaseDate: NSAttributedString? { get }
-    var trackTime: String { get }
     var genre: NSAttributedString? { get }
     
-    func setSongPreviewDidDownloadClosure(callback: @escaping () -> Void)
+    var playerState: Box<PlayerState> { get set }
+    var songProgress: Box<Float> { get }
+    var currentTime: Box<String?> { get }
+    var duration: Box<String?> { get }
+    
     func play()
     func pause()
-    func audioPlayerCurrentTime(_ value: Float)
-//    func handlePlayEvent()
-    
     func playPause()
+    func setSongPreviewDidDownloadClosure(callback: @escaping () -> Void)
+    func audioPlayerCurrentTime(_ value: Float)
     
 }
 
 class MusicDetailViewModel: NSObject, MusicDetailViewModelContract {
-    let song: Song
+    
+    private let song: Song
+    
+    // MARK: - Song Info
     
     var artistName: String { return song.artistName }
     var trackName: String { return song.trackName }
     var currency: String { return song.currency }
-    var trackTime: String {
-        let totalSeconds = song.trackTimeMillis / 1000
-        
-        let minutes = Double(totalSeconds / 60).rounded(.down)
-        let seconds = totalSeconds % 60
-        
-        return "\(Int(minutes)):\(seconds)"
-        
-    }
-    let currentTime: Box<String?> = Box("00:00")
-    let duration: Box<String?> = Box("--:--")
-    
     let artwork: Box<UIImage?> = Box(nil)
 
     var collectionName: NSAttributedString? {
@@ -72,6 +60,9 @@ class MusicDetailViewModel: NSObject, MusicDetailViewModelContract {
         return attribute(text: formattedPrice, title: "Album Price")
     }
     var trackPrice: NSAttributedString? {
+        if song.trackPrice < 0 {
+            return nil
+        }
         let formattedPrice = formatPrice(song.trackPrice, currency: song.currency)
         return attribute(text: formattedPrice, title: "Song Price")
     }
@@ -83,44 +74,24 @@ class MusicDetailViewModel: NSObject, MusicDetailViewModelContract {
         return attribute(text: song.genre, title: "Genre")
     }
     
+    // MARK: - AVPlayer
+    
+    private var audioPlayer: AVPlayer! = {
+        let avPlayer = AVPlayer()
+        avPlayer.automaticallyWaitsToMinimizeStalling = false
+        return avPlayer
+    }()
+    
+    private var playerItem: AVPlayerItem?
+    var playerState: Box<PlayerState> = Box(.neutral)
+    let currentTime: Box<String?> = Box("00:00")
+    let duration: Box<String?> = Box("--:--")
     let songProgress: Box<Float> = Box(0)
     
-//    var playerState: PlayerState = .neutral {
-//            didSet {
-//                switch playerState {
-//                case .neutral:
-//                    audioPlayer?.currentTime = 0.00
-//                    play()
-//                case .playing:
-//                    stop()
-//    //                audioPlayer?.pause()
-//                case .paused:
-//                    play()
-//                case .ended: break
-//                }
-//            }
-//        }
+    private var songPreviewDidDownload: (() -> Void)?
     
-    var playerState: Box<PlayerState> = Box(.neutral) // {
-//        didSet {
-//            switch playerState {
-//            case .neutral:
-//                audioPlayer?.currentTime = 0.00
-////                play()
-//            case .playing:
-////                stop()
-////                audioPlayer?.pause()
-//            case .paused:
-////                play()
-//            case .ended: break
-//            }
-//        }
-//    }
-    
-    deinit {
-        guard let playerItem = self.playerItem else { return }
-        NotificationCenter.default.removeObserver(self, name: NSNotification.Name.AVPlayerItemDidPlayToEndTime, object: playerItem)
-    }
+   
+    // MARK: - Init
     
     init(_ song: Song) {
         self.song = song
@@ -129,11 +100,9 @@ class MusicDetailViewModel: NSObject, MusicDetailViewModelContract {
         fetchArtwork()
     }
     
-    private var songPreviewDidDownload: (() -> Void)?
-    
-    func setSongPreviewDidDownloadClosure(callback: @escaping () -> Void) {
-        songPreviewDidDownload = callback
-        fetchPreview()
+    deinit {
+        guard let playerItem = self.playerItem else { return }
+        NotificationCenter.default.removeObserver(self, name: NSNotification.Name.AVPlayerItemDidPlayToEndTime, object: playerItem)
     }
     
     private func fetchArtwork() {
@@ -149,14 +118,6 @@ class MusicDetailViewModel: NSObject, MusicDetailViewModelContract {
             }
         }
     }
-    
-    private var audioPlayer: AVPlayer! = {
-        let avPlayer = AVPlayer()
-        avPlayer.automaticallyWaitsToMinimizeStalling = false
-        return avPlayer
-    }()
-    
-    private var playerItem: AVPlayerItem?
     
     private func fetchPreview() {
         DispatchQueue.global(qos: .userInitiated).async { [weak self] in
@@ -176,6 +137,13 @@ class MusicDetailViewModel: NSObject, MusicDetailViewModelContract {
         }
     }
     
+    func setSongPreviewDidDownloadClosure(callback: @escaping () -> Void) {
+        songPreviewDidDownload = callback
+        fetchPreview()
+    }
+    
+    // MARK: - AVPlayer Functions
+    
     func play() {
         audioPlayer.play()
     }
@@ -192,33 +160,7 @@ class MusicDetailViewModel: NSObject, MusicDetailViewModelContract {
         audioPlayer.pause()
     }
     
-//    func handlePlayEvent() {
-//        switch playerState.value {
-//        case .neutral:
-//            playerState.value = .playing
-////            audioPlayer.currentTime = 0.00
-//
-//            //                    viewModel.audioPlayerCurrentTime(0)
-//            play()
-////                        playerState = .playing
-//
-//        case .playing:
-//            //            timer.invalidate()
-//            //            audioPlayer?.pause()
-//            pause()
-//            playerState.value = .paused
-//        case .paused:
-//            playerState.value = .playing
-//            play()
-//        //            playerState = .playing
-//        case .ended: break
-//        }
-//    }
-    
-    @objc private func playerDidFinishPlaying() {
-        playerState.value = .ended
-        audioPlayerCurrentTime(0)
-    }
+    // MARK: - AVPlayer Time Observer
     
     private func observeAudioPlayerCurrentTime() {
         let interval = CMTimeMake(value: 1, timescale: 2)
@@ -248,11 +190,18 @@ class MusicDetailViewModel: NSObject, MusicDetailViewModelContract {
         audioPlayer.seek(to: seekTime)
     }
     
+    @objc private func playerDidFinishPlaying() {
+        playerState.value = .ended
+        audioPlayerCurrentTime(0)
+    }
+    
+    // MARK: - String/Attributed Formatter
+    
     private func attribute(text: String, title: String) -> NSAttributedString {
         let mutatingString = NSMutableAttributedString(string: title + "\n", attributes: [NSAttributedString.Key.font : Fonts.mediumBoldTitle.font, NSAttributedString.Key.foregroundColor: UIColor.black])
         
         mutatingString.append(NSAttributedString(string: "\n", attributes: [NSAttributedString.Key.font : UIFont.systemFont(ofSize: 2)]))
-        mutatingString.append(NSAttributedString(string: "  " + text, attributes: [NSAttributedString.Key.font : Fonts.text.font, NSAttributedString.Key.foregroundColor: UIColor.black]))
+        mutatingString.append(NSAttributedString(string: "    " + text, attributes: [NSAttributedString.Key.font : Fonts.text.font, NSAttributedString.Key.foregroundColor: UIColor.black]))
         
         return mutatingString
     }

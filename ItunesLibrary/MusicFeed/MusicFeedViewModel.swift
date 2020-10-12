@@ -34,7 +34,7 @@ class MusicFeedViewModel: MusicFeedViewModelContract {
     }
     
     func fetchMusic(with searchTerm: String) {
-        WebProvider.fetchItunesMusic(searchTerm: searchTerm) { (result) in
+        APIService.fetchItunesMusic(searchTerm: searchTerm) { (result) in
             switch result {
             case .success(let songs):
                 self.songs = songs

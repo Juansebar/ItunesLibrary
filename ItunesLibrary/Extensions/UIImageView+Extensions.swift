@@ -9,6 +9,7 @@
 import UIKit
 
 extension UIImageView {
+    
     final func loadImage(urlString: String) {
         guard let url = URL(string: urlString) else { return }
         
@@ -19,11 +20,11 @@ extension UIImageView {
         ImageCache.publicCache.load(url: url) { [weak self] (result) in
             switch result {
             case .failure(_):
-                print("An error occured while fetching tweet author profile photo.")
                 self?.image = nil
             case .success(let image):
                 self?.image = image
             }
         }
     }
+    
 }

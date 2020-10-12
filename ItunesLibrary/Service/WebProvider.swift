@@ -1,5 +1,5 @@
 //
-//  WebProvider.swift
+//  APIService.swift
 //  ItunesLibrary
 //
 //  Created by Juan Ramirez on 10/7/20.
@@ -21,7 +21,7 @@ protocol WebProviderContract {
     static func fetchItunesMusic(searchTerm: String, completion: @escaping (Result<[Song], FetchError>) -> Void)
 }
 
-class WebProvider: WebProviderContract {
+class APIService: WebProviderContract {
     
     static private let host = "itunes.apple.com"
     static private let path = "search"
@@ -30,17 +30,13 @@ class WebProvider: WebProviderContract {
         case fetchMusic(String)
         
         var url: URL? {
-            var urlBuilder = URLComponents()
-            
             switch self {
             case .fetchMusic(let searchTerm):
-                //                urlBuilder.scheme = "https"
-                //                urlBuilder.path = "/search?"
-                //                urlBuilder.
                 guard let formattedSearchTerm = searchTerm.trimmingCharacters(in: .whitespaces).replacingOccurrences(of: " ", with: "+").addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) else {
                     return nil
                 }
-                return URL(string: "https://itunes.apple.com/search?entity=song&term=\(formattedSearchTerm)")
+                print(formattedSearchTerm)
+                return URL(string: "https://\(host)/\(path)?entity=song&term=\(formattedSearchTerm)")
             }
         }
     }
