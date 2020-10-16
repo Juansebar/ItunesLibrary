@@ -148,7 +148,7 @@ class MusicDetailViewController: UIViewController {
         }
         
         viewModel.songProgress.bind { [weak self] (progress) in
-            self?.playerView.currentTimeSlider.value = progress
+            self?.playerView.updateCurrentTimeSlider(to: progress)
         }
         
         viewModel.currentTime.bind { [weak self] (timeString) in

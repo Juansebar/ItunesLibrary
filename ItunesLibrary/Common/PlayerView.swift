@@ -32,7 +32,7 @@ class PlayerView: UIView {
         return button
     }()
     
-    lazy var currentTimeSlider: UISlider = {
+    private(set) lazy var currentTimeSlider: UISlider = {
         let slider = UISlider()
         slider.minimumValue = 0
         slider.maximumValue = 1
@@ -40,6 +40,7 @@ class PlayerView: UIView {
         slider.tintColor = Colors.red.color
         slider.thumbTintColor = Colors.white.color
         slider.addTarget(self, action: #selector(sliderDidChange), for: .valueChanged)
+        slider.addTarget(self, action: #selector(sliderDidTouchUp), for: .touchUpInside)
         slider.translatesAutoresizingMaskIntoConstraints = false
         return slider
     }()
@@ -138,8 +139,22 @@ class PlayerView: UIView {
         delegate?.didTapPlayPauseButton()
     }
     
+    private var isCurrentTimeSliderBeingDragged = false
+    
     @objc private func sliderDidChange() {
+//        delegate?.sliderDidChange(value: currentTimeSlider.value)
+        isCurrentTimeSliderBeingDragged = true
+    }
+    
+    @objc private func sliderDidTouchUp() {
+        isCurrentTimeSliderBeingDragged = false
         delegate?.sliderDidChange(value: currentTimeSlider.value)
+    }
+    
+    func updateCurrentTimeSlider(to value: Float) {
+        guard !isCurrentTimeSliderBeingDragged else { return }
+        
+        currentTimeSlider.value = value
     }
     
 }
